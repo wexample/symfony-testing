@@ -1,0 +1,21 @@
+{
+    "name": "wexample/symfony-testing",
+    "description": "Testing helpers for Symfony / PhpUnit",
+    "type": "library",
+    "license": "MIT",
+    "version": "0.0.1",
+    "autoload": {
+        "psr-4": {
+            "Wexample\\SymfonyTesting\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "weeger",
+            "email": "romain.weeger@wexample.com"
+        }
+    ],
+    "require": {
+        "wexample/symfony-helpers": "^0.1.86"
+    }
+}
