@@ -67,7 +67,7 @@ trait LoggingTestCaseTrait
     {
         $this->log(
             $message,
-            33
+            TextHelper::ASCII_COLOR_YELLOW
         );
     }
 
