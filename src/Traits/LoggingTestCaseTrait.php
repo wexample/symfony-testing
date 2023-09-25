@@ -3,6 +3,7 @@
 namespace Wexample\SymfonyTesting\Traits;
 
 use DateTime;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Wexample\SymfonyHelpers\Helper\DateHelper;
 use Wexample\SymfonyHelpers\Helper\TextHelper;
@@ -27,13 +28,13 @@ trait LoggingTestCaseTrait
     use ConsoleLoggerTrait;
 
     public function log(
-        string|array|object $message,
+        string|array|object|null $message,
         string $color = TextHelper::ASCII_COLOR_WHITE,
         int $indent = null
     ): void {
         fwrite(
             STDERR,
-            PHP_EOL . $this->formatLogMessage(
+            PHP_EOL.$this->formatLogMessage(
                 $message,
                 $color,
                 $indent
@@ -48,13 +49,17 @@ trait LoggingTestCaseTrait
         $this->log(
             $message,
             TextHelper::ASCII_DARK_COLOR_GRAY,
-            $indent
+            $indent ?: $this->logIndentCursor + 1,
         );
     }
-    public function logArray($array)
+
+    public function logArray($array): void
     {
         $this->log(
-            print_r($array, false)
+            print_r(
+                $array,
+                true
+            )
         );
     }
 
@@ -66,50 +71,10 @@ trait LoggingTestCaseTrait
         );
     }
 
-    public function debugContent(Crawler $crawler = null): void
-    {
-        if (!$crawler) {
-            $crawler = $this->getCurrentCrawler();
-        }
-
-        if (!$crawler) {
-            $this->error('No crawler found in debug method !');
-        }
-
-        $body = $crawler->filter('body');
-
-        $output = $body ? $body->html() : $this->content();
-
-        echo PHP_EOL, '++++++++++++++++++++++++++',
-        PHP_EOL, ' PATH :'.$this->client->getRequest()->getPathInfo(),
-        PHP_EOL, ' CODE :'.$this->client->getResponse()->getStatusCode(),
-        PHP_EOL;
-
-        $exceptionMessagePosition = strpos($output, 'exception_message');
-        $outputSuite = substr($output, $exceptionMessagePosition);
-        if (false !== $exceptionMessagePosition) {
-            preg_match(
-                '/(?:exception_message">)([^<]*)(?:<\/span>)/',
-                $outputSuite,
-                $matches
-            );
-            echo ' Exception message : ', $matches[1];
-            preg_match(
-                '/<div class="block">.*?<\/div>/s',
-                $outputSuite,
-                $matches
-            );
-
-            echo PHP_EOL, ' Stack trace : ', PHP_EOL, $matches[0];
-        } else {
-            echo $output;
-        }
-
-        echo PHP_EOL, '++++++++++++++++++++++++++';
-    }
-
-    public function error(string $message, bool $fatal = true)
-    {
+    public function error(
+        string $message,
+        bool $fatal = true
+    ): void {
         $this->log(
             $message,
             31
@@ -132,9 +97,9 @@ trait LoggingTestCaseTrait
             unlink($logFile);
         }
 
-        $output = $body ?: $this->getBody()
-                // Error pages contains svg which breaks readability.
-                .'<style> svg { display:none} </style>';
+        $output = $body ?: $this->content()
+            // Error pages contains svg which breaks readability.
+            .'<style> svg { display:none; } </style>';
 
         if (!$quiet) {
             $this->info('See : '.$logFile);
@@ -147,6 +112,22 @@ trait LoggingTestCaseTrait
             .'<br><br>'
             .$output
         );
+
+        if (!$quiet) {
+            $this->info('See : '.$logFile);
+            $this->logIfErrorPage();
+        }
+    }
+
+    public function logIfErrorPage(): void
+    {
+        $crawler = new Crawler($this->content());
+        $nodeList = $crawler->filter('h1.exception-message');
+
+        if ($nodeList->count()) {
+            $errorMessage = $nodeList->text();
+            $this->error($errorMessage, false);
+        }
     }
 
     public function initTempDir(): string
@@ -165,6 +146,22 @@ trait LoggingTestCaseTrait
         $this->log(
             $message,
             34
+        );
+    }
+
+    public function logBodyExtract(
+        int $indent = null
+    ): void {
+        /** @var ParameterBagInterface $parameterBag */
+        $parameterBag = self::getContainer()->get(ParameterBagInterface::class);
+
+        $this->logSecondary(
+            substr(
+                $this->getBody(),
+                0,
+                $parameterBag->get('api_test_error_log_length') ?: 1000
+            ),
+            $indent
         );
     }
 }
