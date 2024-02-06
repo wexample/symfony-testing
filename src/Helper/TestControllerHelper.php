@@ -26,7 +26,7 @@ class TestControllerHelper
             $testControllerClass = ClassHelper::NAMESPACE_SEPARATOR.$testControllerClass;
         }
 
-        $testControllerClass = TextHelper::trimString(
+        $testControllerClassNoSuffix = TextHelper::trimString(
             $testControllerClass,
             AbstractRoleControllerTestCase::APPLICATION_ROLE_TEST_CLASS_PATH,
             ControllerSyntaxService::SUFFIX_TEST
@@ -37,7 +37,7 @@ class TestControllerHelper
         // to remove the RoleName folder.
         $removeChunksLength = count(explode(ClassHelper::NAMESPACE_SEPARATOR, AbstractRoleControllerTestCase::APPLICATION_ROLE_TEST_CLASS_PATH));
 
-        $chunks = explode(ClassHelper::NAMESPACE_SEPARATOR, $testControllerClass);
+        $chunks = explode(ClassHelper::NAMESPACE_SEPARATOR, $testControllerClassNoSuffix);
         $chunks = array_splice($chunks, $removeChunksLength);
 
         array_unshift($chunks, ClassHelper::CLASS_PATH_PART_APP);
