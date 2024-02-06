@@ -9,7 +9,7 @@
 namespace Wexample\SymfonyTesting\Traits\Form;
 
 use App\Entity\SearchResult;
-use App\Tests\Traits\TestCase\ApiTestCaseTrait;
+use Wexample\SymfonyApi\Tests\Traits\TestCase\Application\ApiTestCaseTrait;
 use Wexample\SymfonyHelpers\Helper\ClassHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 

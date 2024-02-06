@@ -14,7 +14,6 @@ use Wexample\SymfonyDesignSystem\Tests\Traits\FormTestCaseTrait;
 
 trait SearchableFormTestsTrait
 {
-    use FormTestCaseTrait;
     use SearchTestTrait;
 
     /**

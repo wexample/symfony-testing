@@ -3,12 +3,10 @@
 namespace Wexample\SymfonyTesting\Traits;
 
 use App\Entity\User;
-use App\Tests\Traits\Entity\UserTestTrait;
 use Wexample\SymfonyHelpers\Helper\TextHelper;
 
 trait LoggedUserTestCaseTrait
 {
-    use UserTestTrait;
     use SessionTestCaseTrait;
 
     public ?User $user = null;
