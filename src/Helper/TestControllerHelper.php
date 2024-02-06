@@ -45,6 +45,9 @@ class TestControllerHelper
 
         if ($checkExists) {
             if (!class_exists($controllerClass)) {
+                dump(class_exists($testControllerClass));
+                dump(is_subclass_of($testControllerClass, AbstractRoleControllerTestCase::class));
+                dd($testControllerClass);
                 throw new Exception('Unable to find controller class from '.$testControllerClass.', tried '.$controllerClass);
             }
         }
