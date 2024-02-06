@@ -20,7 +20,7 @@ class TestControllerHelper
         if (ClassHelper::classUsesTrait($classOrBundleClass, BundleClassTrait::class)) {
             /** @var $classOrBundleClass BundleClassTrait */
             return ClassHelper::trimLastClassChunk($classOrBundleClass::getBundleClassName());
-        } elseif (str_starts_with($classOrBundleClass, ClassHelper::CLASS_PATH_PART_APP)) {
+        } elseif (str_starts_with($classOrBundleClass, ClassHelper::NAMESPACE_SEPARATOR.ClassHelper::CLASS_PATH_PART_APP)) {
             return ClassHelper::CLASS_PATH_PART_APP;
         }
 
@@ -119,9 +119,9 @@ class TestControllerHelper
 
         $controllerClass = ClassHelper::getCousin(
             $testControllerClass,
-            $roleNamespace . $role . ClassHelper::NAMESPACE_SEPARATOR,
+            $roleNamespace.$role.ClassHelper::NAMESPACE_SEPARATOR,
             'Test',
-            ClassHelper::NAMESPACE_SEPARATOR . $bundleNamespace . ClassHelper::NAMESPACE_SEPARATOR
+            ClassHelper::NAMESPACE_SEPARATOR.$bundleNamespace.ClassHelper::NAMESPACE_SEPARATOR
         );
 
         if ($checkExists) {
