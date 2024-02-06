@@ -67,10 +67,7 @@ trait DoctrineTestCase
         int $startingId = null
     ): void {
         if (is_null($startingId)) {
-            $startingId = $this->startingIds[$tableName] ?? null;
-            if (is_null($startingId)) {
-                $startingId = $this->buildTestingTableIncrement($tableName);
-            }
+            $startingId = $this->buildTestingTableIncrement($tableName);
         }
 
         $this->log('Cleaning up data from table "'.$tableName.'", starting at '.$startingId);

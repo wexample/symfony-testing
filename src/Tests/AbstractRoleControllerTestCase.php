@@ -23,8 +23,6 @@ abstract class AbstractRoleControllerTestCase extends AbstractRoleTestCase
      * Guess controller class name from test controller class name.
      *
      * @param string|null $testControllerClass
-     * @param bool        $checkExists
-     * @return string
      * @throws Exception
      */
     public static function buildControllerClassPath(

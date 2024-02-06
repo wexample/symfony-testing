@@ -11,13 +11,7 @@ trait ExplorationTestCaseTrait
     use LoggedUserApplicationTestCaseTrait;
     use HtmlDocumentTestCaseTrait;
 
-    /**
-     * @var string
-     */
     private string $EXPLORE_OPTION_LISTEN = 'listen';
-    /**
-     * @var string
-     */
     private string $EXPLORE_OPTION_ARGS = 'args';
 
     /**
