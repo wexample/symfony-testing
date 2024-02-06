@@ -4,7 +4,7 @@ namespace Wexample\SymfonyTesting\Tests\Traits;
 
 use Wexample\SymfonyHelpers\Helper\RoleHelper;
 
-trait AbstractAnonymousTestCaseTrait
+trait RoleAnonymousTestCaseTrait
 {
     protected static function getRole(): string
     {
