@@ -3,7 +3,7 @@
 namespace Wexample\SymfonyTesting\Traits;
 
 use App\Entity\User;
-use Wexample\SymfonyHelpers\Helper\TextHelper;
+use Wexample\Helpers\Helper\TextHelper;
 
 trait LoggedUserTestCaseTrait
 {

@@ -3,7 +3,7 @@
 namespace Wexample\SymfonyTesting\Helper;
 
 use Exception;
-use Wexample\SymfonyHelpers\Helper\ClassHelper;
+use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyHelpers\Helper\RoleHelper;
 use Wexample\SymfonyHelpers\Service\Syntax\ControllerSyntaxService;
 use Wexample\SymfonyHelpers\Traits\BundleClassTrait;

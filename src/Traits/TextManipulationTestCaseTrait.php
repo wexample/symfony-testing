@@ -4,7 +4,7 @@ namespace Wexample\SymfonyTesting\Traits;
 
 use App\Entity\User;
 use JetBrains\PhpStorm\Pure;
-use Wexample\SymfonyHelpers\Helper\ClassHelper;
+use Wexample\Helpers\Helper\ClassHelper;
 
 trait TextManipulationTestCaseTrait
 {

@@ -10,7 +10,7 @@ namespace Wexample\SymfonyTesting\Traits\Form;
 
 use App\Entity\SearchResult;
 use Wexample\SymfonyApi\Tests\Traits\TestCase\Application\ApiTestCaseTrait;
-use Wexample\SymfonyHelpers\Helper\ClassHelper;
+use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 
 trait SearchTestTrait

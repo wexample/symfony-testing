@@ -3,7 +3,7 @@
 namespace Wexample\SymfonyTesting\Traits;
 
 use Wexample\SymfonyHelpers\Entity\AbstractEntity;
-use Wexample\SymfonyHelpers\Helper\ClassHelper;
+use Wexample\Helpers\Helper\ClassHelper;
 
 trait DoctrineEntityTestCase
 {

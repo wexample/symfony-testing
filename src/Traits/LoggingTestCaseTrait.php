@@ -6,7 +6,7 @@ use DateTime;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Wexample\SymfonyHelpers\Helper\DateHelper;
-use Wexample\SymfonyHelpers\Helper\TextHelper;
+use Wexample\Helpers\Helper\TextHelper;
 use Wexample\SymfonyHelpers\Traits\ConsoleLoggerTrait;
 use function file_put_contents;
 use function fwrite;

@@ -5,7 +5,7 @@ namespace Wexample\SymfonyTesting\Traits;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
-use Wexample\SymfonyHelpers\Helper\ClassHelper;
+use Wexample\Helpers\Helper\ClassHelper;
 use function class_exists;
 use function is_dir;
 

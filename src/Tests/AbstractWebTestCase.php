@@ -3,7 +3,7 @@
 namespace Wexample\SymfonyTesting\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Wexample\SymfonyHelpers\Helper\TextHelper;
+use Wexample\Helpers\Helper\TextHelper;
 use Wexample\SymfonyTesting\Traits\LoggingTestCaseTrait;
 
 abstract class AbstractWebTestCase extends WebTestCase
