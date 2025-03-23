@@ -1,6 +1,6 @@
 <?php
 
-namespace Wexample\SymfonyTesting\Tests;
+namespace Wexample\SymfonyTesting;
 
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
