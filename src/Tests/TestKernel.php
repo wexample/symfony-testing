@@ -2,19 +2,23 @@
 
 namespace Wexample\SymfonyTesting\Tests;
 
+use App\Kernel;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\HttpKernel\Kernel as SymfonyKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Wexample\SymfonyHelpers\Service\BundleService;
 use Wexample\SymfonyHelpers\Service\Entity\EntityNeutralService;
+use Wexample\SymfonyHelpers\Service\Syntax\ControllerSyntaxService;
+use Wexample\SymfonyHelpers\Service\Syntax\RoleSyntaxService;
 use Wexample\SymfonyHelpers\WexampleSymfonyHelpersBundle;
 use Wexample\SymfonyTranslations\WexampleSymfonyTranslationsBundle;
 
-class TestKernel extends Kernel
+class TestKernel extends SymfonyKernel
 {
     use MicroKernelTrait;
 
@@ -23,6 +27,7 @@ class TestKernel extends Kernel
         return [
             new FrameworkBundle(),
             new DoctrineBundle(),
+            new TwigBundle(),
             new WexampleSymfonyHelpersBundle(),
             new WexampleSymfonyTranslationsBundle(),
         ];
@@ -33,6 +38,8 @@ class TestKernel extends Kernel
         LoaderInterface $loader
     ): void
     {
+        $container->setAlias(Kernel::class, self::class);
+
         $container->loadFromExtension('framework', [
             'test' => true,
             'router' => ['utf8' => true],
@@ -51,12 +58,35 @@ class TestKernel extends Kernel
             ],
         ]);
 
+        $container->loadFromExtension('twig', [
+            'debug' => true,
+            'strict_variables' => true,
+            'exception_controller' => null,
+        ]);
+
+        $container->setParameter('security.role_hierarchy.roles', [
+            'ROLE_ADMIN' => ['ROLE_USER'],
+            'ROLE_SUPER_ADMIN' => ['ROLE_ADMIN'],
+        ]);
+
         $container->register(BundleService::class, BundleService::class)
             ->setArguments(['@kernel'])
             ->setPublic(true);
 
         $container->register(EntityNeutralService::class, EntityNeutralService::class)
             ->setArguments(['@doctrine.orm.entity_manager'])
+            ->setPublic(true);
+
+        $container->register(ControllerSyntaxService::class, ControllerSyntaxService::class)
+            ->setArguments(['@twig'])
+            ->setPublic(true);
+
+        $container->register(RoleSyntaxService::class, RoleSyntaxService::class)
+            ->setArguments([
+                '@parameter_bag',
+                '@' . ControllerSyntaxService::class,
+                '@kernel'
+            ])
             ->setPublic(true);
     }
 
