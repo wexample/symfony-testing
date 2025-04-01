@@ -63,6 +63,14 @@ trait LoggingTestCaseTrait
         );
     }
 
+    public function success(string $message): void
+    {
+        $this->log(
+            $message,
+            TextHelper::ASCII_COLOR_GREEN
+        );
+    }
+
     public function warn(string $message): void
     {
         $this->log(
