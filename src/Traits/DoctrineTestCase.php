@@ -105,9 +105,7 @@ trait DoctrineTestCase
 
     public function countEntities(string $entityType): int
     {
-        $repo = $this->getRepository($entityType);
-
-        return $repo->count([]);
+        return $this->getRepository($entityType)->count([]);
     }
 
     public function assertEntityCounterIncreased(
