@@ -25,7 +25,7 @@ abstract class AbstractWebTestCase extends WebTestCase
         parent::setUp();
 
         $this->log(
-            PHP_EOL.'____ TESTING : '.static::class,
+            PHP_EOL . '____ TESTING : ' . static::class,
             TextHelper::ASCII_COLOR_CYAN
         );
     }

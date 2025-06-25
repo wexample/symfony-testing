@@ -26,6 +26,7 @@ use function unlink;
 trait LoggingTestCaseTrait
 {
     use ConsoleLoggerTrait;
+    use FileManipulationTestCaseTrait;
 
     public function log(
         string|array|object|null $message,
@@ -109,10 +110,6 @@ trait LoggingTestCaseTrait
             // Error pages contains svg which breaks readability.
             .'<style> svg { display:none; } </style>';
 
-        if (!$quiet) {
-            $this->info('See : '.$logFile);
-        }
-
         file_put_contents(
             $logFile,
             'At '
@@ -123,13 +120,13 @@ trait LoggingTestCaseTrait
 
         if (!$quiet) {
             $this->info('See : '.$logFile);
-            $this->logIfErrorPage();
+            $this->logIfErrorPage($body);
         }
     }
 
-    public function logIfErrorPage(): void
+    public function logIfErrorPage($body = null): void
     {
-        $crawler = new Crawler($this->content());
+        $crawler = new Crawler($body ?: $this->content());
         $nodeList = $crawler->filter('h1.exception-message');
 
         if ($nodeList->count()) {
