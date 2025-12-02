@@ -2,12 +2,13 @@
 
 namespace Wexample\SymfonyTesting\Traits;
 
+use function class_exists;
+use function is_dir;
+
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
 use Wexample\Helpers\Helper\ClassHelper;
-use function class_exists;
-use function is_dir;
 
 /**
  * Trait LoggingTestCase

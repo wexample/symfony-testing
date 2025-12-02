@@ -2,14 +2,15 @@
 
 namespace Wexample\SymfonyTesting\Traits\Application;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Wexample\SymfonyHelpers\Helper\EnvironmentHelper;
-use Wexample\SymfonyHelpers\Helper\FileHelper;
 use function chmod;
 use function file_put_contents;
 use function is_array;
 use function json_encode;
+
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wexample\SymfonyHelpers\Helper\EnvironmentHelper;
+use Wexample\SymfonyHelpers\Helper\FileHelper;
 
 trait ScenarioTestCaseTrait
 {
@@ -32,7 +33,8 @@ trait ScenarioTestCaseTrait
         return $this->client;
     }
 
-    protected function scenarioSetUp(): void {
+    protected function scenarioSetUp(): void
+    {
         $this->keepCreatedUser = true;
 
         if ($this->useCache) {
@@ -56,7 +58,7 @@ trait ScenarioTestCaseTrait
             $map[$userName]['user'] = $this->createAndSaveUserIfNotExists(
                 $userName,
                 $item['role'],
-                !$this->useCache
+                ! $this->useCache
             );
         }
 

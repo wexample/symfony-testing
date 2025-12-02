@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: weeger
@@ -10,7 +11,6 @@ namespace Wexample\SymfonyTesting\Traits\Form;
 
 use App\Entity\SearchResult;
 use Symfony\Component\DomCrawler\Form;
-use Wexample\SymfonyDesignSystem\Tests\Traits\FormTestCaseTrait;
 
 trait SearchableFormTestsTrait
 {
@@ -58,7 +58,7 @@ trait SearchableFormTestsTrait
             if ($this->isFieldSearchable($fieldNode)) {
                 $searchableFields[$fieldName] = (object) [
                     'id' => $fieldNode->getAttribute('id'),
-                    'string' => $searchString
+                    'string' => $searchString,
                 ];
             }
         }
@@ -76,9 +76,9 @@ trait SearchableFormTestsTrait
                 .$options->id.', searching "'.$options->string.'" should not be empty'
             );
 
-                /** @var SearchResult $searchResult */
-                $searchResult = current($searchResults);
-                $resultsValues[$fieldName] = $searchResult->id;
+            /** @var SearchResult $searchResult */
+            $searchResult = current($searchResults);
+            $resultsValues[$fieldName] = $searchResult->id;
         }
 
         return $resultsValues;

@@ -5,9 +5,8 @@ namespace Wexample\SymfonyTesting\Traits;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-use Wexample\SymfonyHelpers\Entity\AbstractEntity;
-use Wexample\SymfonyHelpers\Entity\Interfaces\AbstractEntityInterface;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyHelpers\Entity\Interfaces\AbstractEntityInterface;
 
 trait DoctrineTestCase
 {
@@ -79,6 +78,7 @@ trait DoctrineTestCase
     {
         $conn = $this->getEntityManager()->getConnection();
         $lastId = (int) $conn->fetchOne("SELECT MAX(id) FROM $tableName");
+
         return ceil($lastId / 10000) * 10000;
     }
 

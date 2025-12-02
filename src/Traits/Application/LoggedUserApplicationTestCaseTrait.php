@@ -24,7 +24,7 @@ trait LoggedUserApplicationTestCaseTrait
 
     public function logoutUser(): void
     {
-        if (!$this->user) {
+        if (! $this->user) {
             return;
         }
 

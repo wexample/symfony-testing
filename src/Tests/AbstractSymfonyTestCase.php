@@ -43,15 +43,15 @@ abstract class AbstractSymfonyTestCase extends AbstractWebTestCase
         $router = self::getContainer()->get(UrlGeneratorInterface::class);
 
         $url = $router->generate(
-                $route,
-                $args,
-                $absolute
+            $route,
+            $args,
+            $absolute
                     ? UrlGeneratorInterface::ABSOLUTE_URL
                     : UrlGeneratorInterface::ABSOLUTE_PATH
-            ).RequestHelper::buildQueryStringPartIfNotEmpty($parameters);
+        ).RequestHelper::buildQueryStringPartIfNotEmpty($parameters);
 
         $requestLogPath = $this->getProjectDir().'assets/json/test-requests-log.json';
-        if (!$this->requestsLog) {
+        if (! $this->requestsLog) {
             $this->requestsLog = FileHelper::createFileIfMissingAndGetJson(
                 $requestLogPath,
                 associative: true
@@ -72,7 +72,7 @@ abstract class AbstractSymfonyTestCase extends AbstractWebTestCase
 
         $dummyArgs = [];
         foreach ($args as $name => $value) {
-            if (!isset($requirements[$name])) {
+            if (! isset($requirements[$name])) {
                 if (is_int($value)) {
                     $value = 123;
                 } else {
@@ -104,7 +104,7 @@ abstract class AbstractSymfonyTestCase extends AbstractWebTestCase
 
         $updatedLog = false;
 
-        if (!isset($this->requestsLog[$key])) {
+        if (! isset($this->requestsLog[$key])) {
             $this->requestsLog[$key] = $logEntry;
             $updatedLog = true;
 
@@ -155,7 +155,7 @@ abstract class AbstractSymfonyTestCase extends AbstractWebTestCase
         $urlFrom,
         $urlTo
     ): bool {
-        if (!$this->htaccessRules) {
+        if (! $this->htaccessRules) {
             $rules = explode(
                 PHP_EOL,
                 file_get_contents(

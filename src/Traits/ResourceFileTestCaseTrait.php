@@ -48,7 +48,8 @@ trait ResourceFileTestCaseTrait
         );
     }
 
-    private function assertFilesComparisonExists(string $fileFrom, string $fileModel) {
+    private function assertFilesComparisonExists(string $fileFrom, string $fileModel)
+    {
         $this->assertTrue(
             is_file($fileFrom),
             'Source file exists : ' . $fileFrom
@@ -124,7 +125,7 @@ trait ResourceFileTestCaseTrait
 
         $match = $fileABinary === $fileBBinary;
 
-        if (!$match) {
+        if (! $match) {
             $this->debugWrite(
                 $fileABinary,
                 'binary-diff-a.txt'

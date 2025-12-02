@@ -3,21 +3,23 @@
 namespace Wexample\SymfonyTesting\Traits;
 
 use DateTime;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\DomCrawler\Crawler;
-use Wexample\SymfonyHelpers\Helper\DateHelper;
-use Wexample\Helpers\Helper\TextHelper;
-use Wexample\SymfonyHelpers\Traits\ConsoleLoggerTrait;
+
 use function file_put_contents;
 use function fwrite;
 use function is_dir;
 use function is_file;
 use function mkdir;
-use function preg_match;
 use function print_r;
-use function strpos;
 use function substr;
+
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\DomCrawler\Crawler;
+
 use function unlink;
+
+use Wexample\Helpers\Helper\TextHelper;
+use Wexample\SymfonyHelpers\Helper\DateHelper;
+use Wexample\SymfonyHelpers\Traits\ConsoleLoggerTrait;
 
 /**
  * Trait LoggingTestCase
@@ -118,7 +120,7 @@ trait LoggingTestCaseTrait
             .$output
         );
 
-        if (!$quiet) {
+        if (! $quiet) {
             $this->info('See : '.$logFile);
             $this->logIfErrorPage($body);
         }
@@ -139,7 +141,7 @@ trait LoggingTestCaseTrait
     {
         $tmpDir = $this->getStorageDir('tmp');
 
-        if (!is_dir($tmpDir)) {
+        if (! is_dir($tmpDir)) {
             mkdir($tmpDir, 0777, true);
         }
 

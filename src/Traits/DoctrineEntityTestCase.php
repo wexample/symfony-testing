@@ -2,8 +2,8 @@
 
 namespace Wexample\SymfonyTesting\Traits;
 
-use Wexample\SymfonyHelpers\Entity\AbstractEntity;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyHelpers\Entity\AbstractEntity;
 
 trait DoctrineEntityTestCase
 {

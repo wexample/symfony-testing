@@ -36,8 +36,7 @@ class TestKernel extends SymfonyKernel
     protected function configureContainer(
         ContainerBuilder $container,
         LoaderInterface $loader
-    ): void
-    {
+    ): void {
         $container->setAlias(Kernel::class, self::class);
 
         $container->loadFromExtension('framework', [
@@ -85,7 +84,7 @@ class TestKernel extends SymfonyKernel
             ->setArguments([
                 '@parameter_bag',
                 '@' . ControllerSyntaxService::class,
-                '@kernel'
+                '@kernel',
             ])
             ->setPublic(true);
     }

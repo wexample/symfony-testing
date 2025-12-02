@@ -2,12 +2,6 @@
 
 namespace Wexample\SymfonyTesting\Traits;
 
-use SplFileInfo;
-use Wexample\SymfonyDesignSystem\Controller\AbstractEntityController;
-use Wexample\SymfonyDesignSystem\Helper\TemplateHelper;
-use Wexample\Helpers\Helper\ClassHelper;
-use Wexample\SymfonyHelpers\Helper\FileHelper;
-use Wexample\Helpers\Helper\TextHelper;
 use function basename;
 use function class_exists;
 use function explode;
@@ -15,8 +9,17 @@ use function is_dir;
 use function is_file;
 use function method_exists;
 use function scandir;
+
+use SplFileInfo;
+
 use function str_ends_with;
 use function str_starts_with;
+
+use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\Helpers\Helper\TextHelper;
+use Wexample\SymfonyDesignSystem\Controller\AbstractEntityController;
+use Wexample\SymfonyDesignSystem\Helper\TemplateHelper;
+use Wexample\SymfonyHelpers\Helper\FileHelper;
 
 trait ControllerSyntaxTestCaseTrait
 {
@@ -35,10 +38,9 @@ trait ControllerSyntaxTestCaseTrait
 
         $this->forEachClassFileRecursive(
             $srcSubDir,
-            function(
+            function (
                 SplFileInfo $file
-            ) use
-            (
+            ) use (
                 $projectDir
             ): void {
                 if ($this->isSpecialFile($file)) {

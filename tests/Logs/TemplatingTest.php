@@ -29,13 +29,13 @@ class TemplatingTest extends AbstractSymfonyTestCase
 
         // Errors
         $this->logTitle('Testing errors');
+
         try {
             throw new \Exception('Test error');
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->error(
                 $e->getMessage(),
-            false
+                false
             );
         }
 

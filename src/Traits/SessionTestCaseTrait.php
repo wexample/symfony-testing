@@ -23,7 +23,7 @@ trait SessionTestCaseTrait
 
     protected function createGlobalClientWithSameSession(?string $sessionId = null): void
     {
-        if (!$sessionId) {
+        if (! $sessionId) {
             if ($session = $this->getSession()) {
                 $sessionId = $session->getId();
             }

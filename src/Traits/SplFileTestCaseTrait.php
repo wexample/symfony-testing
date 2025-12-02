@@ -2,14 +2,17 @@
 
 namespace Wexample\SymfonyTesting\Traits;
 
-use SplFileInfo;
-use Wexample\SymfonyDesignSystem\Controller\AbstractEntityController;
-use Wexample\SymfonyHelpers\Helper\BundleHelper;
 use function implode;
 use function is_subclass_of;
+
+use SplFileInfo;
+
 use function str_ends_with;
 use function strlen;
 use function substr;
+
+use Wexample\SymfonyDesignSystem\Controller\AbstractEntityController;
+use Wexample\SymfonyHelpers\Helper\BundleHelper;
 
 /**
  * Trait LoggingTestCase

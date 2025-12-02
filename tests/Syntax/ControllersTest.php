@@ -2,9 +2,9 @@
 
 namespace Wexample\SymfonyTesting\Tests\Syntax;
 
-use Wexample\SymfonyTesting\Traits\ControllerSyntaxTestCaseTrait;
 use Wexample\SymfonyHelpers\Helper\BundleHelper;
 use Wexample\SymfonyTesting\Tests\AbstractApplicationTestCase;
+use Wexample\SymfonyTesting\Traits\ControllerSyntaxTestCaseTrait;
 
 class ControllersTest extends AbstractApplicationTestCase
 {

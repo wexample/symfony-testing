@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: weeger
@@ -9,8 +10,8 @@
 namespace Wexample\SymfonyTesting\Traits\Form;
 
 use App\Entity\SearchResult;
-use Wexample\SymfonyApi\Tests\Traits\TestCase\Application\ApiTestCaseTrait;
 use Wexample\Helpers\Helper\ClassHelper;
+use Wexample\SymfonyApi\Tests\Traits\TestCase\Application\ApiTestCaseTrait;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 
 trait SearchTestTrait

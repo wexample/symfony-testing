@@ -22,7 +22,7 @@ trait ApplicationTestCaseTrait
 
     protected function createGlobalClient(bool $forceRecreate = true): void
     {
-        if ($this->client && !$forceRecreate) {
+        if ($this->client && ! $forceRecreate) {
             return;
         }
 
@@ -49,7 +49,7 @@ trait ApplicationTestCaseTrait
 
     public function getCurrentRequest(): ?Request
     {
-        if (!$this->hasRequested) {
+        if (! $this->hasRequested) {
             return null;
         }
 
@@ -112,7 +112,7 @@ trait ApplicationTestCaseTrait
         $this->logIndentUp();
 
         // Anonymous are redirected to home.
-        if (!isset($this->user)) {
+        if (! isset($this->user)) {
             $this->assertRedirectionIsToLoginPage();
         } // Users are forbidden.
         else {
@@ -309,7 +309,7 @@ trait ApplicationTestCaseTrait
         array $parameters = [],
         bool $quiet = false,
     ): Crawler {
-        if (!$quiet) {
+        if (! $quiet) {
             $this->logNavigation(
                 'GET '.$path,
             );
@@ -346,11 +346,11 @@ trait ApplicationTestCaseTrait
 
     public function debugContent(Crawler $crawler = null): void
     {
-        if (!$crawler) {
+        if (! $crawler) {
             $crawler = $this->getCurrentCrawler();
         }
 
-        if (!$crawler) {
+        if (! $crawler) {
             $this->error('No crawler found in debug method !');
         }
 

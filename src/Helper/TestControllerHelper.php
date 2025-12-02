@@ -17,7 +17,7 @@ class TestControllerHelper
     public static function buildClassBundleNamespace(string $classOrBundleClass): string
     {
         // Ensure the controller class name starts with a namespace separator for consistency
-        if (!str_starts_with($classOrBundleClass, ClassHelper::NAMESPACE_SEPARATOR)) {
+        if (! str_starts_with($classOrBundleClass, ClassHelper::NAMESPACE_SEPARATOR)) {
             $classOrBundleClass = ClassHelper::NAMESPACE_SEPARATOR.$classOrBundleClass;
         }
 
@@ -77,7 +77,7 @@ class TestControllerHelper
         bool $checkExists = true
     ): string {
         // Ensure the controller class name starts with a namespace separator for consistency
-        if (!str_starts_with($controllerClass, ClassHelper::NAMESPACE_SEPARATOR)) {
+        if (! str_starts_with($controllerClass, ClassHelper::NAMESPACE_SEPARATOR)) {
             $controllerClass = ClassHelper::NAMESPACE_SEPARATOR.$controllerClass;
         }
 
@@ -99,7 +99,7 @@ class TestControllerHelper
         $testControllerClass .= ControllerSyntaxService::SUFFIX_TEST;
 
         // Optionally, check if the class exists
-        if ($checkExists && !class_exists($testControllerClass)) {
+        if ($checkExists && ! class_exists($testControllerClass)) {
             throw new Exception('Test controller class does not exist: '.$testControllerClass);
         }
 
@@ -113,7 +113,7 @@ class TestControllerHelper
         string $testControllerClass,
         bool $checkExists = true
     ): string {
-        if (!str_starts_with($testControllerClass, ClassHelper::NAMESPACE_SEPARATOR)) {
+        if (! str_starts_with($testControllerClass, ClassHelper::NAMESPACE_SEPARATOR)) {
             $testControllerClass = ClassHelper::NAMESPACE_SEPARATOR.$testControllerClass;
         }
 
@@ -130,7 +130,7 @@ class TestControllerHelper
         );
 
         if ($checkExists) {
-            if (!class_exists($controllerClass)) {
+            if (! class_exists($controllerClass)) {
                 throw new Exception('Unable to find controller class from '.$testControllerClass.', tried '.$controllerClass);
             }
         }

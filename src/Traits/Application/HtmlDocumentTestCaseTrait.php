@@ -73,7 +73,7 @@ trait HtmlDocumentTestCaseTrait
             $output
         );
 
-        if (!empty($output[1])) {
+        if (! empty($output[1])) {
             $this->logArray($output[1]);
         }
 

@@ -36,8 +36,7 @@ trait ExplorationTestCaseTrait
                 );
 
                 $this->goToHome();
-            }
-            else {
+            } else {
                 $this->createGlobalClient();
             }
 
@@ -59,10 +58,8 @@ trait ExplorationTestCaseTrait
 
                 $this->exploreEachLink(
                     $selector,
-                    function () use
-                    (
-                        &
-                        $map
+                    function () use (
+                        &$map
                     ) {
                         $key = $this->client->getRequest()->get('_route');
                         // Check if current route has a map
@@ -151,10 +148,10 @@ trait ExplorationTestCaseTrait
             );
 
             // Prevent duplicates.
-            if (!isset($cache[$href])) {
+            if (! isset($cache[$href])) {
                 $cache[$href] = true;
                 // Ignore external links and page internal anchors.
-                if (!str_starts_with($href, 'http')
+                if (! str_starts_with($href, 'http')
                     && '#' !== $href[0]
                     && 'javascript:void(0);' !== $href
                     // Ignore logout path.
