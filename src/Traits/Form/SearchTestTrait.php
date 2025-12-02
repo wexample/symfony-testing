@@ -11,13 +11,10 @@ namespace Wexample\SymfonyTesting\Traits\Form;
 
 use App\Entity\SearchResult;
 use Wexample\Helpers\Helper\ClassHelper;
-use Wexample\SymfonyApi\Tests\Traits\TestCase\Application\ApiTestCaseTrait;
 use Wexample\SymfonyHelpers\Helper\RequestHelper;
 
 trait SearchTestTrait
 {
-    use ApiTestCaseTrait;
-
     /**
      * Create a string for sending to search api :
      * return only a relevant part of the searched string.

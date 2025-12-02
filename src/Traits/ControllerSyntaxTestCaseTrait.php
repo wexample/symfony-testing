@@ -17,8 +17,7 @@ use function str_starts_with;
 
 use Wexample\Helpers\Helper\ClassHelper;
 use Wexample\Helpers\Helper\TextHelper;
-use Wexample\SymfonyDesignSystem\Controller\AbstractEntityController;
-use Wexample\SymfonyDesignSystem\Helper\TemplateHelper;
+use Wexample\SymfonyHelpers\Helper\TemplateHelper;
 use Wexample\SymfonyHelpers\Helper\FileHelper;
 
 trait ControllerSyntaxTestCaseTrait
