@@ -16,7 +16,6 @@ use Wexample\SymfonyHelpers\Service\Entity\EntityNeutralService;
 use Wexample\SymfonyHelpers\Service\Syntax\ControllerSyntaxService;
 use Wexample\SymfonyHelpers\Service\Syntax\RoleSyntaxService;
 use Wexample\SymfonyHelpers\WexampleSymfonyHelpersBundle;
-use Wexample\SymfonyTranslations\WexampleSymfonyTranslationsBundle;
 
 class TestKernel extends SymfonyKernel
 {
@@ -29,7 +28,6 @@ class TestKernel extends SymfonyKernel
             new DoctrineBundle(),
             new TwigBundle(),
             new WexampleSymfonyHelpersBundle(),
-            new WexampleSymfonyTranslationsBundle(),
         ];
     }
 
