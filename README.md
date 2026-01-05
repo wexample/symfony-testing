@@ -1,6 +1,6 @@
 # wexample/symfony-testing
 
-Version: 1.0.61
+Version: 1.0.62
 
 Testing helpers for Symfony / PhpUnit
 
@@ -129,7 +129,7 @@ Refer to each package's documentation for specific version compatibility require
 
 ## Dependencies
 
-- wexample/symfony-helpers: 1.0.72
+- wexample/symfony-helpers: 1.0.74
 - wexample/symfony-template: 0.0.1
 
 
