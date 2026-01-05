@@ -81,4 +81,3 @@ abstract class AbstractFixtureKernel extends TestKernel
         return parent::getCacheDir();
     }
 }
-

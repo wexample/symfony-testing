@@ -20,7 +20,7 @@ trait GlobalHandlersSnapshotTrait
             if ($current === $this->initialExceptionHandler) {
                 break;
             }
-            if (!restore_exception_handler()) {
+            if (! restore_exception_handler()) {
                 break;
             }
         }
@@ -30,7 +30,7 @@ trait GlobalHandlersSnapshotTrait
             if ($current === $this->initialErrorHandler) {
                 break;
             }
-            if (!restore_error_handler()) {
+            if (! restore_error_handler()) {
                 break;
             }
         }
@@ -58,4 +58,3 @@ trait GlobalHandlersSnapshotTrait
         return $previous;
     }
 }
-

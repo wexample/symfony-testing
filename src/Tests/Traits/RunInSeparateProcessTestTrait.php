@@ -16,4 +16,3 @@ trait RunInSeparateProcessTestTrait
 
     abstract protected function runIsolatedTest(): void;
 }
-

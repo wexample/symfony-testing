@@ -10,9 +10,9 @@ abstract class AbstractSymfonyKernelTestCase extends AbstractSymfonyTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->initialErrorHandler = set_error_handler(static fn() => null);
+        $this->initialErrorHandler = set_error_handler(static fn () => null);
         restore_error_handler();
-        $this->initialExceptionHandler = set_exception_handler(static fn() => null);
+        $this->initialExceptionHandler = set_exception_handler(static fn () => null);
         restore_exception_handler();
     }
 

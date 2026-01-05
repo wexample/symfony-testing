@@ -19,7 +19,7 @@ trait TwigRenderTestCaseTrait
 
     protected function renderTwig(string $template, array $context = []): string
     {
-        if (!method_exists(static::class, 'bootKernel')) {
+        if (! method_exists(static::class, 'bootKernel')) {
             throw new \LogicException(sprintf(
                 '%s requires a KernelTestCase/WebTestCase compatible base class.',
                 self::class
@@ -38,7 +38,7 @@ trait TwigRenderTestCaseTrait
 
     protected function getKernelProjectDir(): string
     {
-        if (!method_exists(static::class, 'getContainer')) {
+        if (! method_exists(static::class, 'getContainer')) {
             throw new \LogicException(sprintf(
                 '%s requires a KernelTestCase/WebTestCase compatible base class.',
                 self::class

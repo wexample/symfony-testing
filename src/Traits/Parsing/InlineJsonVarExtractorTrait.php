@@ -15,7 +15,7 @@ trait InlineJsonVarExtractorTrait
     protected function extractInlineJsonAssignment(string $content, string $variableName): array
     {
         $match = [];
-        if (!preg_match('/\\b'.preg_quote($variableName, '/').'\\b\\s*=\\s*/', $content, $match, PREG_OFFSET_CAPTURE)) {
+        if (! preg_match('/\\b'.preg_quote($variableName, '/').'\\b\\s*=\\s*/', $content, $match, PREG_OFFSET_CAPTURE)) {
             return [];
         }
 
@@ -77,11 +77,13 @@ trait InlineJsonVarExtractorTrait
             if ($inString) {
                 if ($escape) {
                     $escape = false;
+
                     continue;
                 }
 
                 if ($ch === '\\\\') {
                     $escape = true;
+
                     continue;
                 }
 
@@ -96,11 +98,13 @@ trait InlineJsonVarExtractorTrait
             if ($ch === '"' || $ch === "'") {
                 $inString = true;
                 $quote = $ch;
+
                 continue;
             }
 
             if ($ch === $open) {
                 $depth++;
+
                 continue;
             }
 
@@ -115,4 +119,3 @@ trait InlineJsonVarExtractorTrait
         return null;
     }
 }
-
