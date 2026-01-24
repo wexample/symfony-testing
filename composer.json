@@ -3,7 +3,7 @@
   "description": "Testing helpers for Symfony / PhpUnit",
   "type": "library",
   "license": "MIT",
-  "version": "1.0.70",
+  "version": "1.0.71",
   "autoload": {
     "psr-4": {
       "Wexample\\SymfonyTesting\\": "src/"
@@ -16,7 +16,7 @@
     }
   ],
   "require": {
-    "wexample/symfony-helpers": "1.0.83",
-    "wexample/symfony-template": "0.0.9"
+    "wexample/symfony-helpers": "1.0.84",
+    "wexample/symfony-template": "0.0.10"
   }
 }
