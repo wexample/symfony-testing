@@ -1,19 +1,3 @@
-# symfony_testing
-
-Version: 1.0.89
-
-`wexample/symfony-testing` is a PHPUnit support library for Symfony applications: it ships abstract test cases — `AbstractWebTestCase`, `AbstractSymfonyTestCase`, `AbstractApplicationTestCase`, `AbstractRoleControllerTestCase` — and a set of traits under src/Traits that a project mixes into its own test classes. The traits cover driving an application through the kernel browser (`goToRoute()`, `assertStatusCodeOk()`, `explore()` to crawl every link of a route map role by role), logging users in and out by role, Doctrine entities, console commands, forms, Twig rendering, and syntax tests that walk a project's `src/` to check controllers and their templates follow the expected naming. It targets Symfony projects built on the Wexample suite, on which it depends through `wexample/symfony-helpers` and `wexample/symfony-template`.
-
-## Table of Contents
-
-- [Architecture](#architecture)
-- [Integration in the Suite](#integration-in-the-suite)
-- [Dependencies](#dependencies)
-- [Versioning & Compatibility Policy](#versioning--compatibility-policy)
-- [License](#license)
-- [About us](#about-us)
-- [Migration Notes](#migration-notes)
-
 ## Architecture
 
 The package ships no services and no configuration. `WexampleSymfonyTestingBundle` is an empty `extends AbstractBundle`, and everything else is consumed by inheritance (`extends AbstractSymfonyTestCase`) or by trait composition (`use ExplorationTestCaseTrait`). There is nothing to wire: a host project's test class picks a base class and mixes in the traits it needs.
@@ -66,48 +50,3 @@ Two identifiers resolve to nothing: `AbstractEntityController`, referenced in `C
 ### The package's own tests
 
 tests holds two files, `Syntax/ControllersTest.php` and `Logs/TemplatingTest.php`, both extending the package's own base classes. composer.json maps `Wexample\SymfonyTesting\` to `src/` only and declares no `autoload-dev`, so these files are not covered by the autoloader as it stands.
-
-## Integration in the Suite
-
-This package is part of the Wexample Suite — a collection of high-quality, modular tools designed to work seamlessly together across multiple languages and environments.
-
-### Related Packages
-
-The suite includes packages for configuration management, file handling, prompts, and more. Each package can be used independently or as part of the integrated suite.
-
-Visit the [Wexample Suite documentation](https://docs.wexample.com) for the complete package ecosystem.
-
-## Dependencies
-
-- wexample/symfony-helpers: >=5.0.0
-- wexample/symfony-template: >=0.0.25
-
-## Versioning & Compatibility Policy
-
-Wexample packages follow **Semantic Versioning** (SemVer):
-
-- **MAJOR**: Breaking changes
-- **MINOR**: New features, backward compatible
-- **PATCH**: Bug fixes, backward compatible
-
-We maintain backward compatibility within major versions and provide clear migration guides for breaking changes.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Free to use in both personal and commercial projects.
-
-## About us
-
-[Wexample](https://wexample.com) stands as a cornerstone of the digital ecosystem — a collective of seasoned engineers, researchers, and creators driven by a relentless pursuit of technological excellence. More than a media platform, it has grown into a vibrant community where innovation meets craftsmanship, and where every line of code reflects a commitment to clarity, durability, and shared intelligence.
-
-This packages suite embodies this spirit. Trusted by professionals and enthusiasts alike, it delivers a consistent, high-quality foundation for modern development — open, elegant, and battle-tested. Its reputation is built on years of collaboration, refinement, and rigorous attention to detail, making it a natural choice for those who demand both robustness and beauty in their tools.
-
-Wexample cultivates a culture of mastery. Each package, each contribution carries the mark of a community that values precision, ethics, and innovation — a community proud to shape the future of digital craftsmanship.
-
-## Migration Notes
-
-When upgrading between major versions, refer to the migration guides in the documentation.
-
-Breaking changes are clearly documented with upgrade paths and examples.
