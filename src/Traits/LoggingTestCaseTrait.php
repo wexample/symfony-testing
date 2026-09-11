@@ -18,7 +18,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use function unlink;
 
 use Wexample\Helpers\Helper\TextHelper;
-use Wexample\SymfonyHelpers\Helper\DateHelper;
+use Wexample\PhpDate\Helper\DateHelper;
 use Wexample\SymfonyHelpers\Traits\ConsoleLoggerTrait;
 
 /**
