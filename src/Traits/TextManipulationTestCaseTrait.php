@@ -2,16 +2,16 @@
 
 namespace Wexample\SymfonyTesting\Traits;
 
-use App\Entity\User;
 use JetBrains\PhpStorm\Pure;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Wexample\Helpers\Helper\ClassHelper;
 
 trait TextManipulationTestCaseTrait
 {
     #[Pure]
-    public function buildEmailAddress(User $user): string
+    public function buildEmailAddress(UserInterface $user): string
     {
-        return 'test.'.$user->getUsername().'@domain.com';
+        return 'test.'.$user->getUserIdentifier().'@domain.com';
     }
 
     #[Pure]

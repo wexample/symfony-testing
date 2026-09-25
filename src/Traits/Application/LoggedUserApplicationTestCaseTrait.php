@@ -17,9 +17,12 @@ trait LoggedUserApplicationTestCaseTrait
         return $this->url($this->getUserLoginRoute());
     }
 
+    /**
+     * The route of wexample/symfony-user; override it for another login.
+     */
     public function getUserLoginRoute(): string
     {
-        return 'fos_user_security_login';
+        return 'user_security_login';
     }
 
     public function logoutUser(): void
@@ -29,7 +32,7 @@ trait LoggedUserApplicationTestCaseTrait
         }
 
         $this->log(
-            'Logout #'.$this->user->getId().' @'.$this->user->getUsername()
+            'Logout @'.$this->user->getUserIdentifier()
         );
 
         $this->client->request(Request::METHOD_GET, $this->getUserLogoutPath());
@@ -47,6 +50,6 @@ trait LoggedUserApplicationTestCaseTrait
 
     public function getUserLogoutRoute(): string
     {
-        return 'fos_user_security_logout';
+        return 'user_security_logout';
     }
 }

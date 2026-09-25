@@ -2,15 +2,21 @@
 
 namespace Wexample\SymfonyTesting\Tests;
 
-use App\Entity\User;
-use App\Wex\BaseBundle\Tests\SymfonyTestCase;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Wexample\SymfonyTesting\Traits\Application\ScenarioTestCaseTrait;
 
 abstract class AbstractTestStep
 {
-    public User $user;
+    public UserInterface $user;
 
-    public function __construct(public SymfonyTestCase $test)
+    /**
+     * @param TestCase $test a test case using ScenarioTestCaseTrait
+     *
+     * @see ScenarioTestCaseTrait
+     */
+    public function __construct(public TestCase $test)
     {
     }
 
