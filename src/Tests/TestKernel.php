@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Kernel as SymfonyKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Wexample\SymfonyHelpers\Service\BundleService;
@@ -69,22 +70,22 @@ class TestKernel extends SymfonyKernel
         ]);
 
         $container->register(BundleService::class, BundleService::class)
-            ->setArguments(['@kernel'])
+            ->setArguments([new Reference('kernel')])
             ->setPublic(true);
 
         $container->register(EntityNeutralService::class, EntityNeutralService::class)
-            ->setArguments(['@doctrine.orm.entity_manager'])
+            ->setArguments([new Reference('doctrine.orm.entity_manager')])
             ->setPublic(true);
 
         $container->register(ControllerSyntaxService::class, ControllerSyntaxService::class)
-            ->setArguments(['@twig'])
+            ->setArguments([new Reference('twig')])
             ->setPublic(true);
 
         $container->register(RoleSyntaxService::class, RoleSyntaxService::class)
             ->setArguments([
-                '@parameter_bag',
-                '@' . ControllerSyntaxService::class,
-                '@kernel',
+                new Reference('parameter_bag'),
+                new Reference(ControllerSyntaxService::class),
+                new Reference('kernel'),
             ])
             ->setPublic(true);
     }
