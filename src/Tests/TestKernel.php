@@ -49,6 +49,9 @@ class TestKernel extends SymfonyKernel
                 'memory' => true,
             ],
             'orm' => [
+                // Doctrine proxies need them since symfony/var-exporter 8
+                // dropped the LazyGhost implementation.
+                'enable_native_lazy_objects' => true,
                 'auto_generate_proxy_classes' => true,
                 'naming_strategy' => 'doctrine.orm.naming_strategy.underscore_number_aware',
                 'auto_mapping' => true,
