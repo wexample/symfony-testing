@@ -57,6 +57,16 @@ This todo is the **prerequisite** of `WEXAMPLE/NETWORK/archeo/proposed-packages/
 9. **Role traits**: generalize `src/Traits/Application/Role/*` into one `RoleTestCaseTrait` with a `#[TestRole('ROLE_X')]` attribute or a constant, instead of one trait per role (network had 9 `Abstract<Role>TestCaseTrait`). Remove the duplicate `src/Tests/Traits/RoleAnonymousTestCaseTrait.php` vs `src/Traits/Application/Role/AnonymousTestCaseTrait.php` (keep one, deprecate the other; `symfony-api` tests use the former).
 10. Update `README.md`/`.wex/knowledge` (architecture: remove the "What the package assumes of its host" list items that are fixed).
 
+## Added 2026-10-01 — broken links, per role (from Sapiens)
+
+A request from the owner, to fold into step 8 rather than build beside it. Sapiens needed « no internal link leads to an error, whatever the role » (its recette point 22), and got it from a throwaway test: per actor, a breadth-first walk from `/` following every `href="/…"` of each page (redirects followed by hand, `/_`, `/build`, `/logout`, downloads skipped, a page cap), collecting every 4xx/5xx with the role and the URL. That is `ExplorationTestCaseTrait` without a map: the same crawl, its targets discovered rather than listed. Wanted from the access-matrix work:
+
+- an `exploreAll(array $actors, array $startPaths = ['/'], array $skip = [], int $maxPages = 200)` (name open) on the exploration internals, reporting `role status url` for every failure, and asserting none;
+- excluded-path patterns as parameters, the defaults being the ones above;
+- actors created through `TestUserProviderInterface` (step 2).
+
+Sapiens would keep it as a standing test once it lands; its throwaway version is in the conversation of agent `addon:ai/editor` (2026-10-01).
+
 ## Do not
 
 - Do not copy network's `tests/Integration/Role/**` classes (227 in fos-user, 366 in step3 of which 47 are `assertTrue(false)` stubs) nor the `RoleSyntaxService` class generator.
