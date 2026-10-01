@@ -86,7 +86,7 @@ trait ApplicationTestCaseTrait
         $this->logSecondary('Status code is forbidden : '.Response::HTTP_FORBIDDEN);
     }
 
-    public function assertStatusCodeIsNotError(string $message = null): void
+    public function assertStatusCodeIsNotError(?string $message = null): void
     {
         $this->assertNotContains(
             $this->client->getResponse()->getStatusCode(),
@@ -344,7 +344,7 @@ trait ApplicationTestCaseTrait
     }
 
 
-    public function debugContent(Crawler $crawler = null): void
+    public function debugContent(?Crawler $crawler = null): void
     {
         if (! $crawler) {
             $crawler = $this->getCurrentCrawler();

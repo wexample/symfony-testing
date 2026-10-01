@@ -33,7 +33,7 @@ trait LoggingTestCaseTrait
     public function log(
         string|array|object|null $message,
         string $color = TextHelper::ASCII_COLOR_WHITE,
-        int $indent = null
+        ?int $indent = null
     ): void {
         fwrite(
             STDERR,
@@ -47,7 +47,7 @@ trait LoggingTestCaseTrait
 
     public function logSecondary(
         string|array|object $message,
-        int $indent = null
+        ?int $indent = null
     ): void {
         $this->log(
             $message,
@@ -157,7 +157,7 @@ trait LoggingTestCaseTrait
     }
 
     public function logBodyExtract(
-        int $indent = null
+        ?int $indent = null
     ): void {
         /** @var ParameterBagInterface $parameterBag */
         $parameterBag = self::getContainer()->get(ParameterBagInterface::class);

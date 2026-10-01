@@ -132,7 +132,7 @@ trait ExplorationTestCaseTrait
      */
     public function exploreEachLink(
         $selector,
-        callable $callback = null,
+        ?callable $callback = null,
         array $options = []
     ): void {
         $links = $this->find($selector);

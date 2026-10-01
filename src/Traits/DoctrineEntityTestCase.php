@@ -29,7 +29,7 @@ trait DoctrineEntityTestCase
 
     public function cleanupEntitiesFromStartingId(
         string|AbstractEntity $entity,
-        int $startingId = null
+        ?int $startingId = null
     ): void {
         $this->cleanupFromStartingId(
             $this->getTableNameFromEntity($entity),

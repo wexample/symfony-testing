@@ -33,7 +33,7 @@ trait SearchTestTrait
     public function apiRequestSearch(
         string $searchString,
         string $action,
-        string $searchEntityClass = null,
+        ?string $searchEntityClass = null,
         ?int $max = 10,
     ): array {
         $parameters = [

@@ -106,7 +106,7 @@ trait SplFileTestCaseTrait
 
     public function buildRelatedEntityClassNameFromSplFile(
         SplFileInfo $fileInfo,
-        string $fileSuffix = null
+        ?string $fileSuffix = null
     ): string {
         $controllerClass = $this->buildClassNameFromSpl($fileInfo);
         $split = explode('\\', $controllerClass);

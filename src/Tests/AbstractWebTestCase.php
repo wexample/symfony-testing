@@ -22,5 +22,5 @@ abstract class AbstractWebTestCase extends WebTestCase
     /**
      * Return the root path of the website.
      */
-    abstract public function getStorageDir(string $name = null): string;
+    abstract public function getStorageDir(?string $name = null): string;
 }

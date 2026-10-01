@@ -63,7 +63,7 @@ trait DoctrineTestCase
 
     public function cleanupFromStartingId(
         string $tableName,
-        int $startingId = null
+        ?int $startingId = null
     ): void {
         if (is_null($startingId)) {
             $startingId = $this->buildTestingTableIncrement($tableName);
@@ -111,7 +111,7 @@ trait DoctrineTestCase
     public function assertEntityCounterIncreased(
         string $entityType,
         int $increased = 1,
-        string $message = null
+        ?string $message = null
     ): void {
         $this->assertEntityCounterEquals(
             $entityType,
@@ -122,8 +122,8 @@ trait DoctrineTestCase
 
     public function assertEntityCounterEquals(
         string $entityType,
-        int $equals = null,
-        string $message = null
+        ?int $equals = null,
+        ?string $message = null
     ): void {
         if (is_null($equals)) {
             $equals = $this->entityCounters[$entityType];

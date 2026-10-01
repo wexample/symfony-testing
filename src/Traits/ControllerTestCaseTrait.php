@@ -87,7 +87,7 @@ trait ControllerTestCaseTrait
     protected function assertControllerRouteSame(
         string $routeName,
         array $parameters = [],
-        string $message = null
+        ?string $message = null
     ): void {
         $this->assertRouteSame(
             $this->buildControllerRoute($routeName),

@@ -50,7 +50,7 @@ trait FileManipulationTestCaseTrait
         string $route,
         array $args = [],
         string $key = 'document',
-        string $fileName = null,
+        ?string $fileName = null,
         string $extension = FileHelper::FILE_EXTENSION_PDF
     ): void {
         $fileName = $fileName ?: $this->FILE_NAME_50Kb;
@@ -66,7 +66,7 @@ trait FileManipulationTestCaseTrait
     public function uploadTestFile(
         string $path,
         string $key = 'document',
-        string $fileName = null,
+        ?string $fileName = null,
         string $extension = FileHelper::FILE_EXTENSION_PDF
     ): void {
         $fileName = $fileName ?: $this->FILE_NAME_50Kb;

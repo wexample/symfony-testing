@@ -117,7 +117,7 @@ trait ScenarioTestCaseTrait
     public function step(
         string $name,
         callable $callback,
-        callable $callbackIfCompleted = null
+        ?callable $callbackIfCompleted = null
     ): mixed {
         $this->logTitle('STEP ____________ '.$name);
         $this->logIndentUp();

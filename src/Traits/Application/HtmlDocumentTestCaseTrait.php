@@ -23,8 +23,8 @@ trait HtmlDocumentTestCaseTrait
     }
 
     public function assertPageBodyHasNotOrphanTranslationKey(
-        string $body = null,
-        Crawler $crawler = null
+        ?string $body = null,
+        ?Crawler $crawler = null
     ): void {
         $translationKeyPattern = '([\n\t\s]*[a-zA-Z0-9_\.]+::[a-zA-Z0-9_\.]+[\n\t\s]*)';
         $this->logIndentUp();
@@ -46,7 +46,7 @@ trait HtmlDocumentTestCaseTrait
         $this->logIndentDown();
     }
 
-    public function getBody(Crawler $crawler = null): string
+    public function getBody(?Crawler $crawler = null): string
     {
         $crawler ??= $this->getCurrentCrawler();
         $body = $crawler->filter('body');
@@ -61,8 +61,8 @@ trait HtmlDocumentTestCaseTrait
     private function assertPageBodyHasNotOrphanTranslationKeyPattern(
         string $pattern,
         string $message,
-        string $body = null,
-        Crawler $crawler = null
+        ?string $body = null,
+        ?Crawler $crawler = null
     ): void {
         $this->logSecondary($message);
 
