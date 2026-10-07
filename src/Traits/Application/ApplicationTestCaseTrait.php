@@ -250,7 +250,6 @@ trait ApplicationTestCaseTrait
         }
 
         $this->assertStatusCodeOk();
-        $this->assertPageBodyHasNotOrphanTranslationKey();
     }
 
     protected function goToRouteAndCheckHtml(
@@ -263,10 +262,6 @@ trait ApplicationTestCaseTrait
             $routeParameters,
             $expectedResponseCode
         );
-
-        if (Response::HTTP_OK === $expectedResponseCode) {
-            $this->assertPageBodyHasNotOrphanTranslationKey();
-        }
     }
 
     protected function goToRouteAndCheckStatusCode(

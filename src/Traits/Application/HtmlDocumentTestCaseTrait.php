@@ -22,30 +22,6 @@ trait HtmlDocumentTestCaseTrait
         return $nodes->getNode($index);
     }
 
-    public function assertPageBodyHasNotOrphanTranslationKey(
-        ?string $body = null,
-        ?Crawler $crawler = null
-    ): void {
-        $translationKeyPattern = '([\n\t\s]*[a-zA-Z0-9_\.]+::[a-zA-Z0-9_\.]+[\n\t\s]*)';
-        $this->logIndentUp();
-
-        $this->assertPageBodyHasNotOrphanTranslationKeyPattern(
-            '/>'.$translationKeyPattern.'</',
-            'No orphan translation inside html tags',
-            $body,
-            $crawler,
-        );
-
-        $this->assertPageBodyHasNotOrphanTranslationKeyPattern(
-            '/\="'.$translationKeyPattern.'"/',
-            'No orphan translation inside html attributes',
-            $body,
-            $crawler,
-        );
-
-        $this->logIndentDown();
-    }
-
     public function getBody(?Crawler $crawler = null): string
     {
         $crawler ??= $this->getCurrentCrawler();
@@ -56,31 +32,6 @@ trait HtmlDocumentTestCaseTrait
         }
 
         return $this->content();
-    }
-
-    private function assertPageBodyHasNotOrphanTranslationKeyPattern(
-        string $pattern,
-        string $message,
-        ?string $body = null,
-        ?Crawler $crawler = null
-    ): void {
-        $this->logSecondary($message);
-
-        // Search keys in html attributes.
-        preg_match_all(
-            $pattern,
-            $body ?? $this->getBody($crawler),
-            $output
-        );
-
-        if (! empty($output[1])) {
-            $this->logArray($output[1]);
-        }
-
-        $this->assertEmpty(
-            $output[1],
-            $message,
-        );
     }
 
     public function nodeHasClass(

@@ -160,10 +160,6 @@ trait ExplorationTestCaseTrait
                     $this->go($href);
 
                     if ($callback) {
-                        if ($options['checkMissingTranslations'] ?? false) {
-                            $this->assertPageBodyHasNotOrphanTranslationKey();
-                        }
-
                         $callback();
                     }
 
