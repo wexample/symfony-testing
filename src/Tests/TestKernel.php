@@ -6,6 +6,7 @@ use App\Kernel;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -28,6 +29,11 @@ class TestKernel extends SymfonyKernel
             new FrameworkBundle(),
             new DoctrineBundle(),
             new TwigBundle(),
+            // Every application the bundles ship into has a firewall, and some
+            // of them read it — a menu drawing only the links the reader may
+            // follow asks `security.access_map`. A fixture without the bundle
+            // would fail to compile where no application ever does.
+            new SecurityBundle(),
             new WexampleSymfonyHelpersBundle(),
         ];
     }
@@ -64,10 +70,28 @@ class TestKernel extends SymfonyKernel
             'strict_variables' => true,
         ]);
 
-        $container->setParameter('security.role_hierarchy.roles', [
-            'ROLE_ADMIN' => ['ROLE_USER'],
-            'ROLE_SUPER_ADMIN' => ['ROLE_ADMIN'],
+        // SecurityBundle owns security.role_hierarchy.roles, so the hierarchy
+        // is declared here rather than set as a parameter it would overwrite.
+        $container->loadFromExtension('security', [
+            'role_hierarchy' => [
+                'ROLE_ADMIN' => ['ROLE_USER'],
+                'ROLE_SUPER_ADMIN' => ['ROLE_ADMIN'],
+            ],
         ]);
+
+        if (! $this->configuresItsOwnSecurity()) {
+            // A firewall is required for the extension to load at all. This one
+            // protects nothing: it exists so the services a bundle reads —
+            // `security.access_map` and the decision manager — are there.
+            $container->loadFromExtension('security', [
+                'providers' => [
+                    'fixture' => ['memory' => null],
+                ],
+                'firewalls' => [
+                    'main' => ['security' => false],
+                ],
+            ]);
+        }
 
         $container->register(BundleService::class, BundleService::class)
             ->setArguments([new Reference('kernel')])
@@ -88,6 +112,17 @@ class TestKernel extends SymfonyKernel
                 new Reference('kernel'),
             ])
             ->setPublic(true);
+    }
+
+    /**
+     * Whether the fixture declares its own `security` providers and firewall.
+     *
+     * A fixture exercising authentication does, and the unprotected default
+     * above would collide with its own `main`.
+     */
+    protected function configuresItsOwnSecurity(): bool
+    {
+        return false;
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

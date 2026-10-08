@@ -17,6 +17,7 @@
   ],
   "require": {
     "php": ">=8.5",
+    "symfony/security-bundle": "^7.4 || ^8.0",
     "wexample/php-date": ">=2.0.0",
     "wexample/symfony-helpers": ">=15.0.0",
     "wexample/symfony-template": ">=2.0.5"
