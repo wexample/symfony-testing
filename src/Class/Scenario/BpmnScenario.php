@@ -42,18 +42,17 @@ final class BpmnScenario
     }
 
     /**
-     * The complete paths, each a story to play.
+     * A few complete paths taking every flow together, each loop gone round
+     * once: each a story to play.
      *
-     * @return array<string, Path> keyed by what each path chose
+     * @return array<string, Path> keyed by what sets each apart
      */
     public function getPaths(): array
     {
         $paths = [];
 
-        foreach ((new PathFinder(maxVisits: 1))->find($this->process) as $path) {
-            if ($path->isComplete()) {
-                $paths[$path->describe()] = $path;
-            }
+        foreach ((new PathFinder())->cover($this->process) as $path) {
+            $paths[$path->describe()] = $path;
         }
 
         return $paths;
@@ -81,7 +80,7 @@ final class BpmnScenario
             $context->as($lane[0]);
 
             try {
-                $this->perform($binding, $context, $test, $step, $path);
+                $this->perform($binding, $context, $test, $step, $path, $this->flowsAfter($path, $index));
             } catch (\Throwable $exception) {
                 throw new RuntimeException($where . ', done by ' . $lane[0] . ': ' . $exception->getMessage(), 0, $exception);
             }
@@ -137,9 +136,36 @@ final class BpmnScenario
         return array_replace($expectations, $binding->expect);
     }
 
-    private function perform(TaskBinding $binding, ScenarioContext $context, object $test, PathStep $step, Path $path): void
+    /**
+     * The flows a path takes after one of its steps, up to the next task
+     * someone does: the way this occurrence of the task decides — a task met
+     * twice on a loop may decide otherwise the second time.
+     *
+     * @return list<string>
+     */
+    private function flowsAfter(Path $path, int $index): array
     {
-        [$do, $options] = $binding->doOn(array_map(static fn (array $choice) => $choice[1], $path->getChoices()));
+        $flows = [];
+
+        foreach (array_slice($path->getSteps(), $index + 1) as $step) {
+            if ($step->flowId) {
+                $flows[] = $step->flowId;
+            }
+
+            if (isset($this->fixtures->tasks[$step->nodeId])) {
+                break;
+            }
+        }
+
+        return $flows;
+    }
+
+    /**
+     * @param list<string> $flowsAfter
+     */
+    private function perform(TaskBinding $binding, ScenarioContext $context, object $test, PathStep $step, Path $path, array $flowsAfter): void
+    {
+        [$do, $options] = $binding->doOn($flowsAfter);
 
         switch ($do) {
             case TaskBinding::DO_VISIT:

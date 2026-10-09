@@ -66,7 +66,7 @@ class ScenarioTest extends AbstractScenarioTestCase
     {
         $paths = BpmnScenario::fromFiles(self::RESOURCES . 'note-review.bpmn', self::RESOURCES . 'note-review.yaml')->getPaths();
 
-        $this->assertSame(['verdict → approved', 'verdict → default'], array_keys($paths));
+        $this->assertSame(['main: approved', 'verdict → default ↺'], array_keys($paths));
     }
 
     #[DataProvider('noteReviewPaths')]
@@ -74,8 +74,8 @@ class ScenarioTest extends AbstractScenarioTestCase
     {
         $this->playBpmnPath(self::RESOURCES . 'note-review.bpmn', self::RESOURCES . 'note-review.yaml', $path);
 
-        $note = NoteStore::get($this->scenario->get('note')['id']);
-        $this->assertSame('verdict → approved' === $path ? 'approved' : 'rejected', $note['status']);
+        // Sent back or not, the note ends approved.
+        $this->assertSame('approved', NoteStore::get($this->scenario->get('note')['id'])['status']);
     }
 
     public function testReportsEveryAccessThatDiffers(): void
@@ -108,6 +108,6 @@ class ScenarioTest extends AbstractScenarioTestCase
         $context = $this->startScenario($bpmn->fixtures);
 
         $this->expectExceptionMessage('Task "Write a note" (write) is done by a person but bound to nothing');
-        $bpmn->play($bpmn->getPaths()['verdict → approved'], $context, $this);
+        $bpmn->play($bpmn->getPaths()['main: approved'], $context, $this);
     }
 }

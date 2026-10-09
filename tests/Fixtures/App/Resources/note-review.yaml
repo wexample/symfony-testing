@@ -14,8 +14,13 @@ tasks:
     route: note_review
     params: { id: '@note.id' }
     do: { submit: { button: Approve } }
+    # Sent back the first time round the loop, approved the second.
     when:
       flow_rejected: { submit: { button: Reject } }
+  revise:
+    route: note_show
+    params: { id: '@note.id' }
+    expect: { bob: ok, carol: not_found, visitor: login }
   read_verdict:
     route: note_show
     params: { id: '@note.id' }

@@ -21,7 +21,7 @@ final readonly class TaskBinding
      * @param array<string, AccessExpectation> $expect per actor alias, over the default: the lane's actors `ok`, the others `denied`
      * @param string                           $do        `visit` (the default: opening the page is the task), `submit` a form of the page, `php` a method of the test
      * @param array<string, mixed>             $doOptions for `submit`: `button`, `fill`, `capture` (a name for the parameters of the page landed on); for `php`: `method`
-     * @param array<string, array{string, array<string, mixed>}> $when another way of doing it, by the id of a flow the path takes further on: the task decides a gateway
+     * @param array<string, array{string, array<string, mixed>}> $when another way of doing it, by the id of a flow the path takes next, before the following task: the task decides a gateway
      */
     public function __construct(
         public string $taskId,

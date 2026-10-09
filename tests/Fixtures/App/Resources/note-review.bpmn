@@ -6,6 +6,7 @@
         <bpmn:flowNodeRef>start</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>write</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>read_verdict</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>revise</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="reviewer" name="Reviewer">
         <bpmn:flowNodeRef>review</bpmn:flowNodeRef>
@@ -14,7 +15,6 @@
       <bpmn:lane id="platform" name="Platform">
         <bpmn:flowNodeRef>notify</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>approved</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>rejected</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="start" name="A member has something to say"/>
@@ -24,7 +24,7 @@
     <bpmn:sendTask id="notify" name="Tell the writer"/>
     <bpmn:userTask id="read_verdict" name="Read the verdict"/>
     <bpmn:endEvent id="approved" name="Approved"/>
-    <bpmn:endEvent id="rejected" name="Rejected"/>
+    <bpmn:userTask id="revise" name="Revise the note"/>
     <bpmn:sequenceFlow id="flow_start" sourceRef="start" targetRef="write"/>
     <bpmn:sequenceFlow id="flow_written" sourceRef="write" targetRef="review"/>
     <bpmn:sequenceFlow id="flow_reviewed" sourceRef="review" targetRef="verdict"/>
@@ -33,6 +33,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="flow_notified" sourceRef="notify" targetRef="read_verdict"/>
     <bpmn:sequenceFlow id="flow_read" sourceRef="read_verdict" targetRef="approved"/>
-    <bpmn:sequenceFlow id="flow_rejected" sourceRef="verdict" targetRef="rejected"/>
+    <bpmn:sequenceFlow id="flow_rejected" sourceRef="verdict" targetRef="revise"/>
+    <bpmn:sequenceFlow id="flow_revised" sourceRef="revise" targetRef="review"/>
   </bpmn:process>
 </bpmn:definitions>
