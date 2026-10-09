@@ -33,6 +33,8 @@ use Wexample\SymfonyTesting\Enum\AccessExpectation;
  *                 flow_refused: { submit: { button: Refuse } }
  *     access:
  *         user_accounts_index: { expect: { visitor: login, member: forbidden, admin: ok } }
+ *     explore:                        # smoke test: every page reached by following links
+ *         member: { start: [user_index], links: 'nav a', depth: 2, skip: ['^/_', 'logout'], max: 200 }
  */
 final class ScenarioFixtures
 {
@@ -40,7 +42,7 @@ final class ScenarioFixtures
 
     public const string DEFAULT_FIREWALL = 'main';
 
-    private const array KEYS = ['imports', 'login_route', 'firewall', 'actors', 'lanes', 'data', 'tasks', 'access'];
+    private const array KEYS = ['imports', 'login_route', 'firewall', 'actors', 'lanes', 'data', 'tasks', 'access', 'explore'];
 
     /**
      * @param array<string, ActorDefinition>          $actors
@@ -48,6 +50,7 @@ final class ScenarioFixtures
      * @param list<FixtureDefinition>                 $data
      * @param array<string, TaskBinding>              $tasks
      * @param array<string, array{route: string, params: array<string, mixed>, expect: array<string, AccessExpectation>}> $access
+     * @param array<string, ExplorationDefinition> $explore by actor alias
      */
     public function __construct(
         public readonly string $loginRoute = self::DEFAULT_LOGIN_ROUTE,
@@ -57,6 +60,7 @@ final class ScenarioFixtures
         public readonly array $data = [],
         public readonly array $tasks = [],
         public readonly array $access = [],
+        public readonly array $explore = [],
     ) {
     }
 
@@ -125,6 +129,21 @@ final class ScenarioFixtures
             ];
         }
 
+        $explore = [];
+        foreach ($config['explore'] ?? [] as $alias => $entry) {
+            self::aliases([$alias], $actors, $source . ': explore');
+            $entry ??= [];
+
+            $explore[$alias] = new ExplorationDefinition(
+                actor: $alias,
+                start: $entry['start'] ?? throw new InvalidArgumentException($source . ': explore ' . $alias . ' names no start page.'),
+                links: $entry['links'] ?? 'a',
+                depth: $entry['depth'] ?? 1,
+                skip: $entry['skip'] ?? ExplorationDefinition::DEFAULT_SKIP,
+                max: $entry['max'] ?? 200,
+            );
+        }
+
         return new self(
             loginRoute: $config['login_route'] ?? self::DEFAULT_LOGIN_ROUTE,
             firewall: $config['firewall'] ?? self::DEFAULT_FIREWALL,
@@ -133,6 +152,7 @@ final class ScenarioFixtures
             data: $data,
             tasks: $tasks,
             access: $access,
+            explore: $explore,
         );
     }
 

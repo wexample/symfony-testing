@@ -25,7 +25,7 @@ abstract class AbstractScenarioDirectoryTestCase extends AbstractScenarioTestCas
     abstract protected static function getScenarioDirectory(): string;
 
     /**
-     * @return iterable<string, array{?string, string, ?string}> bpmn file or null for a matrix, fixtures file, path
+     * @return iterable<string, array{?string, string, ?string}> bpmn file (null for a matrix or an exploration), fixtures file, path (or `access`, `explore`)
      */
     public static function scenarios(): iterable
     {
@@ -44,8 +44,14 @@ abstract class AbstractScenarioDirectoryTestCase extends AbstractScenarioTestCas
         }
 
         foreach (glob($directory . '/*.yaml') ?: [] as $fixtures) {
-            if (isset((Yaml::parseFile($fixtures) ?? [])['access'])) {
-                yield basename($fixtures, '.yaml') . ' › access' => [null, $fixtures, null];
+            $config = Yaml::parseFile($fixtures) ?? [];
+
+            if (isset($config['access'])) {
+                yield basename($fixtures, '.yaml') . ' › access' => [null, $fixtures, 'access'];
+            }
+
+            if (isset($config['explore'])) {
+                yield basename($fixtures, '.yaml') . ' › explore' => [null, $fixtures, 'explore'];
             }
         }
     }
@@ -54,7 +60,7 @@ abstract class AbstractScenarioDirectoryTestCase extends AbstractScenarioTestCas
     public function testScenario(?string $bpmn, string $fixtures, ?string $path): void
     {
         if (null === $bpmn) {
-            $this->assertAccessMatrix($fixtures);
+            'explore' === $path ? $this->assertExploration($fixtures) : $this->assertAccessMatrix($fixtures);
 
             return;
         }

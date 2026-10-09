@@ -6,6 +6,7 @@ use Closure;
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ExceptionInterface as RoutingException;
@@ -244,6 +245,140 @@ final class ScenarioContext
     }
 
     /**
+     * A smoke test by one actor: its start pages, then every link of the
+     * `links` selector, followed `depth` times over, each page once. Every
+     * answer is checked — no server error, no translation key left raw in a
+     * page, JSON readable where it says it is JSON — and what fails is kept
+     * for the report. Redirects are answers, not followed: the login page a
+     * visitor is sent to is not visited for it.
+     *
+     * @return int the pages visited
+     */
+    public function explore(ExplorationDefinition $exploration): int
+    {
+        $this->as($exploration->actor);
+        $queue = [];
+        $visited = [];
+
+        foreach ($exploration->start as $start) {
+            $queue[] = [$this->startUrl($start), 0];
+        }
+
+        while ($queue && count($visited) < $exploration->max) {
+            [$url, $depth] = array_shift($queue);
+
+            if (isset($visited[$url])) {
+                continue;
+            }
+
+            $visited[$url] = true;
+            $response = $this->request(Request::METHOD_GET, $url);
+            $this->checkPage($exploration->actor, $url, $response);
+
+            if ($depth >= $exploration->depth || ! $response->isSuccessful() || ! $this->isHtml($response)) {
+                continue;
+            }
+
+            foreach ($this->client->getCrawler()->filter($exploration->links) as $link) {
+                $next = $this->internalPath((string) $link->getAttribute('href'));
+
+                if (null !== $next && ! isset($visited[$next]) && ! $this->isSkipped($next, $exploration->skip)) {
+                    $queue[] = [$next, $depth + 1];
+                }
+            }
+        }
+
+        return count($visited);
+    }
+
+    private function checkPage(string $actor, string $url, Response $response): void
+    {
+        $where = 'explore ' . $actor . ' ' . $url;
+
+        if ($response->isServerError()) {
+            $this->accessFailures[] = sprintf('%s: server error %d%s', $where, $response->getStatusCode(), $this->describeError($response));
+
+            return;
+        }
+
+        $contentType = (string) $response->headers->get('Content-Type');
+
+        if (str_contains($contentType, 'json')) {
+            json_decode((string) $response->getContent());
+
+            if (JSON_ERROR_NONE !== json_last_error()) {
+                $this->accessFailures[] = $where . ': says JSON but is not (' . json_last_error_msg() . ')';
+            }
+
+            return;
+        }
+
+        if ($response->isSuccessful() && $this->isHtml($response)) {
+            // Text node by text node, so that two elements side by side do
+            // not run their words together. Left out: scripts and styles,
+            // templates a script renders later (their keys are translated
+            // then), and code shown as code.
+            $text = implode(' ', (new Crawler((string) $response->getContent()))
+                ->filterXPath('//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::code) and not(ancestor::pre)]')
+                ->each(static fn (Crawler $node) => $node->text('', true)));
+
+            if (preg_match_all(self::RAW_TRANSLATION_KEY, $text, $matches)) {
+                $this->accessFailures[] = $where . ': translation keys left raw: ' . implode(', ', array_slice(array_unique($matches[0]), 0, 5));
+            }
+        }
+    }
+
+    /**
+     * A key the translator handed back as is: `@page::title`,
+     * `WexampleSymfonyUserBundle.pages.profile::name`.
+     */
+    private const string RAW_TRANSLATION_KEY = '/(?:@[a-z_]+|\b[A-Z][A-Za-z]*Bundle(?:\.[\w-]+)*)::[\w.-]+/';
+
+    private function startUrl(string|array $start): string
+    {
+        if (is_array($start)) {
+            return $this->url($start['route'], $start['params'] ?? []);
+        }
+
+        return str_starts_with($start, '/') ? $start : $this->url($start);
+    }
+
+    /**
+     * The path of a link staying in the application, its fragment dropped;
+     * null for anything else.
+     */
+    private function internalPath(string $href): ?string
+    {
+        if ('' === $href || str_starts_with($href, '#') || str_starts_with($href, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $href) && ! str_starts_with($href, 'http://localhost')) {
+            return null;
+        }
+
+        $href = preg_replace('/^http:\/\/localhost/', '', $href);
+        $href = explode('#', $href, 2)[0];
+
+        return str_starts_with($href, '/') ? $href : null;
+    }
+
+    /**
+     * @param list<string> $patterns
+     */
+    private function isSkipped(string $path, array $patterns): bool
+    {
+        foreach ($patterns as $pattern) {
+            if (preg_match('#' . str_replace('#', '\#', $pattern) . '#', $path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isHtml(Response $response): bool
+    {
+        return str_contains((string) $response->headers->get('Content-Type'), 'html');
+    }
+
+    /**
      * The parameters of the page the browser stands on, kept under a name:
      * the note a form just created, reached through `@note.id`.
      */
@@ -286,11 +421,25 @@ final class ScenarioContext
      */
     private function describeError(Response $response): string
     {
-        if (! $response->isServerError() || ! $exception = $response->headers->get('X-Debug-Exception')) {
+        if (! $response->isServerError()) {
             return '';
         }
 
-        return ' (' . rawurldecode($exception) . ')';
+        if ($exception = $response->headers->get('X-Debug-Exception')) {
+            return ' (' . rawurldecode($exception) . ')';
+        }
+
+        // A JSON error says it in its body; Symfony's error page, in its title.
+        $data = json_decode((string) $response->getContent(), true);
+        if (is_array($data) && is_string($message = $data['message'] ?? $data['detail'] ?? $data['title'] ?? null)) {
+            return ' (' . $message . ')';
+        }
+
+        if (preg_match('/<title>(.*?)<\/title>/s', (string) $response->getContent(), $match)) {
+            return ' (' . trim(html_entity_decode(strip_tags($match[1]))) . ')';
+        }
+
+        return '';
     }
 
     private function isRedirectToLogin(Response $response): bool

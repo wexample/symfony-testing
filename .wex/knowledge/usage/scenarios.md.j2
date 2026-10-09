@@ -52,6 +52,20 @@ access:                          # label (or route name) → who meets what
     expect: { member: ok, outsider: not_found }
 ```
 
+## Exploring: the smoke test
+
+```yaml
+explore:                         # actor → how it walks the application
+  member:
+    start: [home_index, /api/]   # routes or paths
+    links: 'nav a, .doc-section--code a'   # the links followed, from every page met
+    depth: 2                     # clicks away from a start page
+    skip: ['^/_', '^/build/', 'logout']    # paths not followed (the defaults)
+    max: 200                     # pages at most
+```
+
+Each page met, once: a server error is reported with the exception it names; an HTML page showing a translation key left raw (`@page::title`, `SomeBundle.pages.x::key`) is reported — templates rendered later by a script and code shown as code are not read —; a response saying it is JSON must decode. Redirects are answers, not followed. The API documentation page of symfony-api is a good start: its example links call every endpoint. The successor of network's `explore()` route maps, written as data.
+
 **Expectations**: `ok` (shown, or redirected anywhere but the login), `login` (sent to `login_route`), `forbidden` (403), `not_found` (404: hidden rather than refused), `denied` (any of the three). A server error matches none.
 
 **References**: `@name` and `@name.path` read what `data` created or a step captured (entities are read again by the current Doctrine manager); `@actor.alias` is an actor's user; `${…}` interpolates inside a longer text; `@@` escapes a leading `@`.
@@ -60,7 +74,7 @@ access:                          # label (or route name) → who meets what
 
 ## The test
 
-One class per application runs every scenario of a directory: each `name.bpmn` is played path by path with the `name.yaml` beside it, and each `*.yaml` holding an `access` section is checked as a matrix. A new scenario is a new pair of files, no code.
+One class per application runs every scenario of a directory: each `name.bpmn` is played path by path with the `name.yaml` beside it, each `*.yaml` holding an `access` section is checked as a matrix, and each holding an `explore` section is walked as a smoke test. A new scenario is a new pair of files, no code.
 
 ```php
 class ScenariosTest extends AbstractScenarioDirectoryTestCase

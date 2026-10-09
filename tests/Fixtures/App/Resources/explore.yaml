@@ -1,0 +1,5 @@
+imports: [actors.yaml]
+
+explore:
+  alice: { start: [explore_sound], links: 'nav a', depth: 2 }
+  visitor: { start: [/explore/sound], links: 'nav a' }

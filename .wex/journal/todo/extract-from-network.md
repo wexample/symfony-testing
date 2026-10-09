@@ -95,3 +95,9 @@ Le moteur de scénarios est **dans symfony-testing**, pas dans un package `symfo
 
 Reste de cette todo : étapes 1–3, 5–7, 9–10, l'exploration de tous les liens par rôle (section Sapiens), le retrait de l'ancien `ScenarioTestCaseTrait`.
 
+## 2026-10-09 : l'exploration (section Sapiens et `explore()` de network)
+
+Intention du propriétaire : des tests d'intégration robustes qui prennent des rôles, passent sur les pages et vérifient qu'elles rendent du HTML sans erreur grave, sans clé de traduction perdue, et que l'API répond du JSON ; l'`explore()` de network (visiter tous les liens d'un menu d'un coup) en était le cœur. Fait : section `explore` des fixtures (`ExplorationDefinition`, `ScenarioContext::explore()`, `assertExploration()`, jouée par `AbstractScenarioDirectoryTestCase`). Premier usage : MOJOE design system `tests/Scenario/explore.yaml`, 118 à 132 pages par acteur ; a trouvé des traductions manquantes (corrigées dans notification-ds et la page de doc de symfony-api, via `trans_exists()` ajouté à symfony-translations) et `/api/user-tokens` en 500 quand la classe de jeton n'est pas configurée.
+
+Pas fait : vérifier que les réponses d'API respectent la norme des entités (à proposer côté symfony-api).
+

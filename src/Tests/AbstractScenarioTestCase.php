@@ -73,6 +73,21 @@ abstract class AbstractScenarioTestCase extends AbstractApplicationTestCase
     }
 
     /**
+     * Every actor of the `explore` section walks the application: no server
+     * error, no raw translation key, JSON that reads.
+     */
+    protected function assertExploration(string $fixturesPath): void
+    {
+        $context = $this->startScenario($fixturesPath);
+
+        foreach ($context->fixtures->explore as $exploration) {
+            $this->assertGreaterThan(0, $context->explore($exploration), 'explore ' . $exploration->actor . ' visited nothing.');
+        }
+
+        $this->assertScenarioPassed();
+    }
+
+    /**
      * One path of the process, played from its start to its end.
      */
     protected function playBpmnPath(string $bpmnPath, string $fixturesPath, string $pathLabel, ?string $processId = null): void

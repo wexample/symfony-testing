@@ -31,7 +31,7 @@ class ScenarioDirectoryTest extends AbstractScenarioDirectoryTestCase
     public function testFindsEveryScenario(): void
     {
         $this->assertSame(
-            ['note-review › main: approved', 'note-review › verdict → default ↺', 'access › access'],
+            ['note-review › main: approved', 'note-review › verdict → default ↺', 'access › access', 'explore › explore'],
             array_keys(iterator_to_array(static::scenarios()))
         );
     }
