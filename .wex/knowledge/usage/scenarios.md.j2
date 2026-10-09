@@ -1,0 +1,113 @@
+## Scenarios: the application tested by the people who use it
+
+A scenario test takes the parts of several people on one browser — a visitor, a member, an administrator — and checks, page by page and moment by moment, that each one gets what they should and nothing else. Two sources feed it:
+
+- an **access matrix**: the pages each actor may open, refused how;
+- a **BPMN process** (read with `wexample/php-bpmn`): each path through it played lane by lane. At every task, every actor opens the task's page — the lane's actors must get it, the others must be turned away —, then the lane's first actor does the task.
+
+The process stays a plain description of who does what. Everything tied to the application lives in a **fixtures file** beside it.
+
+## The fixtures file
+
+```yaml
+imports: [actors.yaml]          # merged first, this file wins
+login_route: user_security_login # where an anonymous visitor is sent (default)
+firewall: main                   # the firewall actors are logged in on (default)
+
+actors:                          # alias → account; ~ is the anonymous visitor
+  visitor: ~
+  member: { user: scenario-member }
+  admin: { user: scenario-admin, roles: [ROLE_ADMIN], with: { locale: fr } }
+
+lanes:                           # BPMN lane id → actor(s); the first one does the tasks
+  administrator: member
+  newcomer: [teammate]
+
+data:                            # created before the first step, removed after the test, in reverse
+  editorial:
+    factory: team                # a TestFixtureFactoryInterface, by getName()
+    with: { name: Editorial, members: [{ user: '@actor.member', grants: [administrator] }] }
+
+tasks:                           # BPMN task id → what it is in the application
+  add_newcomer:
+    route: user_memberships_index
+    params: { id: 'team:${editorial.id}' }
+    expect: { admin: ok }        # over the default: lane actors ok, every other actor denied
+    do:
+      submit:
+        button: Add to the group
+        fill: { 'membership_add_form[member]': '@actor.teammate.id' }
+        capture: newcomer        # the route parameters of the page landed on, as @newcomer
+    when:                        # the task decides a gateway: another way, by the flow taken after it
+      flow_refused: { submit: { button: Refuse } }
+  remove_newcomer:
+    do: { php: removeNewcomer }  # a method of the test: ($context, $step, $path)
+
+access:                          # label (or route name) → who meets what
+  user_accounts_index: { expect: { visitor: login, member: forbidden, admin: ok } }
+  team members:
+    route: user_memberships_index
+    params: { id: 'team:${editorial.id}' }
+    expect: { member: ok, outsider: not_found }
+```
+
+**Expectations**: `ok` (shown, or redirected anywhere but the login), `login` (sent to `login_route`), `forbidden` (403), `not_found` (404: hidden rather than refused), `denied` (any of the three). A server error matches none.
+
+**References**: `@name` and `@name.path` read what `data` created or a step captured (entities are read again by the current Doctrine manager); `@actor.alias` is an actor's user; `${…}` interpolates inside a longer text; `@@` escapes a leading `@`.
+
+**Tasks**: `visit` (the default: opening the page is the task), `submit` (the form holding `button`; a value for a field the page does not render — a script-drawn search input — is sent all the same), `php`. A human task (`task`, `userTask`, `manualTask`) of a lane left without an entry stops the run: nothing a person does goes untested. Automatic tasks and events are the application's own and are skipped.
+
+## The test
+
+The application supplies who its actors are, and how its data is made:
+
+```php
+class TeamMembershipTest extends AbstractScenarioTestCase
+{
+    protected function getActorProvider(): TestActorProviderInterface
+    {
+        return new DemoActorProvider();   // provide() an account per actor, release() it after
+    }
+
+    protected function getFixtureFactories(): iterable
+    {
+        return [new DemoTeamFactory()];
+    }
+
+    public static function paths(): iterable
+    {
+        return self::bpmnPathsOf(__DIR__ . '/team-membership.bpmn', __DIR__ . '/team-membership.yaml');
+    }
+
+    #[DataProvider('paths')]
+    public function testTeamMembership(string $path): void
+    {
+        $this->playBpmnPath(__DIR__ . '/team-membership.bpmn', __DIR__ . '/team-membership.yaml', $path);
+    }
+
+    public function testAccess(): void
+    {
+        $this->assertAccessMatrix(__DIR__ . '/access.yaml');
+    }
+}
+```
+
+One PHPUnit test per path, named after its choices (`keep → remove`). Access mismatches are gathered and reported together; a task that cannot be done stops the path. Either way the failure prints every request made, by whom, and what came back:
+
+```
+[keep → remove] step 7 "Check the team": teammate expected not_found on user_memberships_index, met ok (200)
+
+Requests:
+  member submits "Add to the group" on user_memberships_index → 200
+  teammate GET /en/memberships/team:01a1… → 200
+```
+
+`ScenarioContext` is also usable by hand: `as($alias)`, `open($route, $params)`, `submit(…)`, `checkAccess(…)`, `capture($name)`, `set()` / `get()`, `getUser($alias)`, `getContainer()`.
+
+## Each actor its own session
+
+`ActorSessionPool` keeps one cookie jar per actor on the single kernel browser: switching back to an actor puts its cookies back, an actor without any is logged in with `loginUser()` — no login form, no second factor —, an anonymous one starts empty. `markDirty($alias)` forgets a session after a change of roles, so the next turn logs in again.
+
+## The database
+
+Each test creates its accounts and data through the provider and the factories and removes them after, even when it fails: the test database is left as it was found. The application needs a test database with its schema (`doctrine:schema:create --env=test`).

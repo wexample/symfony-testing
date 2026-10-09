@@ -145,7 +145,8 @@ final class ScenarioContext
         $this->client->request($method, $url, $parameters);
         $response = $this->client->getResponse();
 
-        $this->trace[] = sprintf('%s %s %s → %d', $this->actors->current() ?? '-', $method, $url, $response->getStatusCode());
+        $this->trace[] = sprintf('%s %s %s → %d', $this->actors->current() ?? '-', $method, $url, $response->getStatusCode())
+            . $this->describeError($response);
 
         return $response;
     }
@@ -199,27 +200,41 @@ final class ScenarioContext
 
     /**
      * The form of a page holding the button, filled and sent; the answer
-     * must not be an error, and is followed when it redirects.
+     * must not be an error, and is followed when it redirects. A value for a
+     * field the page does not render — one a script draws, as a search
+     * input — is sent along all the same.
      *
      * @param array<string, mixed> $fill field name → value, references allowed
      */
     public function submit(string $route, array $params, string $button, array $fill = []): Response
     {
         $this->open($route, $params);
-        $crawler = $this->client->getCrawler();
-        $buttons = $crawler->selectButton($button);
+        $buttons = $this->client->getCrawler()->selectButton($button);
 
         if (! $buttons->count()) {
             throw new RuntimeException(sprintf('No button "%s" on %s for %s.', $button, $route, $this->actors->current() ?? 'nobody'));
         }
 
-        $form = $buttons->form($this->references->resolve($fill));
+        $form = $buttons->form();
+        $extra = [];
+
+        foreach ($this->references->resolve($fill) as $name => $value) {
+            if ($form->has($name)) {
+                $form[$name] = $value;
+            } else {
+                $extra[] = rawurlencode($name) . '=' . rawurlencode((string) $value);
+            }
+        }
+
+        parse_str(implode('&', $extra), $extraValues);
+
         $this->client->followRedirects(true);
-        $this->client->submit($form);
+        $this->client->request($form->getMethod(), $form->getUri(), array_replace_recursive($form->getPhpValues(), $extraValues), $form->getPhpFiles());
         $this->client->followRedirects(false);
         $response = $this->client->getResponse();
 
-        $this->trace[] = sprintf('%s submits "%s" on %s → %d', $this->actors->current() ?? '-', $button, $route, $response->getStatusCode());
+        $this->trace[] = sprintf('%s submits "%s" on %s → %d', $this->actors->current() ?? '-', $button, $route, $response->getStatusCode())
+            . $this->describeError($response);
 
         if ($response->getStatusCode() >= 400) {
             throw new RuntimeException(sprintf('Submitting "%s" on %s answered %d.', $button, $route, $response->getStatusCode()));
@@ -264,6 +279,18 @@ final class ScenarioContext
     public function getTrace(): array
     {
         return $this->trace;
+    }
+
+    /**
+     * What broke, on a server error: the exception Symfony names in debug.
+     */
+    private function describeError(Response $response): string
+    {
+        if (! $response->isServerError() || ! $exception = $response->headers->get('X-Debug-Exception')) {
+            return '';
+        }
+
+        return ' (' . rawurldecode($exception) . ')';
     }
 
     private function isRedirectToLogin(Response $response): bool

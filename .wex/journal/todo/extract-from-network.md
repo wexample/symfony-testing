@@ -1,7 +1,7 @@
 # Extract testing primitives from network (multi-actor sessions, access matrix, cleanup)
 
 Opened: 2026-09-24
-Updated: 2026-09-24
+Updated: 2026-10-09
 Author: agent:archeology
 
 ## Read this first — status of this todo
@@ -83,3 +83,15 @@ Sapiens would keep it as a standing test once it lands; its throwaway version is
   - `AccessMatrixTest`: `/admin` expected `ROLE_ANONYMOUS: login, ROLE_USER: forbidden, ROLE_ADMIN: ok` with ROLE_ADMIN inheriting from ROLE_USER only where not overridden.
   - `UrlSurveillanceTest` (step 7).
 - `composer test` (phpunit) green with `failOnDeprecation`.
+
+## Fait le 2026-10-09 (agent:main, décision du propriétaire)
+
+Le moteur de scénarios est **dans symfony-testing**, pas dans un package `symfony-scenario` : c'est pour lui que BPMN a été construit. `wexample/php-bpmn` n'est qu'en `require-dev` ; le moteur BPMN ne sert que si l'application l'installe. Doc : `.wex/knowledge/usage/scenarios.md.j2`.
+
+- Étape 4 : `Class/Scenario/ActorSessionPool` (un jar de cookies par acteur, `loginUser()` paresseux, `markDirty`). `SessionTestCaseTrait` n'est pas encore réécrit dessus.
+- Étape 8 : la matrice d'accès existe, sous une autre forme que proposée : section `access` du fichier de fixtures, acteurs nommés plutôt que rôles, attentes `ok|login|forbidden|not_found|denied`. Pas d'héritage par `role_hierarchy`.
+- Au-delà : `BpmnScenario` joue chaque chemin d'un processus, couloir par couloir, avec une vérification d'accès de tous les acteurs à chaque tâche ; `TestActorProviderInterface`, `TestFixtureFactoryInterface`, références `@x.y` / `${x.y}`. Remplace l'ancien `ScenarioTestCaseTrait` + `AbstractTestStep`, laissés en place pour l'instant.
+- Premier usage réel : MOJOE design-system, `tests/Scenario/` (matrice d'accès des pages user/notification/signature, processus « Team membership » à deux chemins).
+
+Reste de cette todo : étapes 1–3, 5–7, 9–10, l'exploration de tous les liens par rôle (section Sapiens), le retrait de l'ancien `ScenarioTestCaseTrait`.
+

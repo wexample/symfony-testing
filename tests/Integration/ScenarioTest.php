@@ -53,6 +53,9 @@ class ScenarioTest extends AbstractScenarioTestCase
         $context = $this->startScenario(self::RESOURCES . 'access.yaml');
         $id = $context->get('alice_note')->id;
         $this->assertNotNull(NoteStore::get($id));
+        $this->assertSame($id, $context->references->resolve('@alice_note.id'));
+        $this->assertSame('note-' . $id . ' by alice', $context->references->resolve('note-${alice_note.id} by ${actor.alice.userIdentifier}'));
+        $this->assertSame('@alice_note', $context->references->resolve('@@alice_note'));
 
         $context->tearDown();
 

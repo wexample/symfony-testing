@@ -9,8 +9,8 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
  * What a scenario has made or met, by name: `@editorial`, `@editorial.id`,
- * `@actor.member.email`. A value starting with `@@` is the literal text after
- * the first `@`. Objects are refreshed on each read, so an entity stays the
+ * `@actor.member.email`; inside a longer text, `${editorial.id}`. A value
+ * starting with `@@` is the literal text after the first `@`. Objects are refreshed on each read, so an entity stays the
  * one the current request's manager knows.
  */
 final class ReferenceBag
@@ -71,8 +71,14 @@ final class ReferenceBag
             return array_map($this->resolve(...), $value);
         }
 
-        if (! is_string($value) || ! str_starts_with($value, '@')) {
+        if (! is_string($value)) {
             return $value;
+        }
+
+        if (! str_starts_with($value, '@')) {
+            return str_contains($value, '${')
+                ? preg_replace_callback('/\$\{([^}]+)\}/', fn (array $match) => (string) $this->path($match[1]), $value)
+                : $value;
         }
 
         if (str_starts_with($value, '@@')) {
