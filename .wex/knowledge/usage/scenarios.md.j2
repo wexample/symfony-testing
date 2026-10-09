@@ -59,11 +59,16 @@ access:                          # label (or route name) → who meets what
 
 ## The test
 
-The application supplies who its actors are, and how its data is made:
+One class per application runs every scenario of a directory: each `name.bpmn` is played path by path with the `name.yaml` beside it, and each `*.yaml` holding an `access` section is checked as a matrix. A new scenario is a new pair of files, no code.
 
 ```php
-class TeamMembershipTest extends AbstractScenarioTestCase
+class ScenariosTest extends AbstractScenarioDirectoryTestCase
 {
+    protected static function getScenarioDirectory(): string
+    {
+        return __DIR__;
+    }
+
     protected function getActorProvider(): TestActorProviderInterface
     {
         return new DemoActorProvider();   // provide() an account per actor, release() it after
@@ -71,28 +76,19 @@ class TeamMembershipTest extends AbstractScenarioTestCase
 
     protected function getFixtureFactories(): iterable
     {
-        return [new DemoTeamFactory()];
+        return [new DemoTeamFactory()];   // one per `factory:` name the files use
     }
 
-    public static function paths(): iterable
-    {
-        return self::bpmnPathsOf(__DIR__ . '/team-membership.bpmn', __DIR__ . '/team-membership.yaml');
-    }
-
-    #[DataProvider('paths')]
-    public function testTeamMembership(string $path): void
-    {
-        $this->playBpmnPath(__DIR__ . '/team-membership.bpmn', __DIR__ . '/team-membership.yaml', $path);
-    }
-
-    public function testAccess(): void
-    {
-        $this->assertAccessMatrix(__DIR__ . '/access.yaml');
-    }
+    // The methods `do: { php: … }` tasks call: ($context, $step, $path).
+    public function removeNewcomer(ScenarioContext $context): void { … }
 }
 ```
 
-One PHPUnit test per path, named after its choices (`keep → remove`). Access mismatches are gathered and reported together; a task that cannot be done stops the path. Either way the failure prints every request made, by whom, and what came back:
+A fixtures file without a `.bpmn` of the same name and without `access` — a shared `actors.yaml` — is only imported. A `.bpmn` without its `.yaml` fails the suite.
+
+`AbstractScenarioTestCase`, which it extends, is there for a scenario written by hand: `playBpmnPath($bpmn, $yaml, $path)`, `assertAccessMatrix($yaml)`, `bpmnPathsOf($bpmn, $yaml)` for a data provider, `startScenario($yaml)` for a context to drive yourself.
+
+One PHPUnit test per path, named after the file and its choices (`team-membership › keep → remove`). Access mismatches are gathered and reported together; a task that cannot be done stops the path. Either way the failure prints every request made, by whom, and what came back:
 
 ```
 [keep → remove] step 7 "Check the team": teammate expected not_found on user_memberships_index, met ok (200)
@@ -111,3 +107,17 @@ Requests:
 ## The database
 
 Each test creates its accounts and data through the provider and the factories and removes them after, even when it fails: the test database is left as it was found. The application needs a test database with its schema (`doctrine:schema:create --env=test`).
+
+## Recipe: adding a scenario to an application
+
+1. **Once per application**: a scenario directory (`tests/Scenario/`), its `ScenariosTest` as above, an actor provider (`TestActorProviderInterface`: create the account an actor stands for, with what the application requires before letting it in — accepted terms, no second factor —, delete it in `release()`), one factory per kind of data, a shared `actors.yaml`, and a test database with its schema. The design-system app of MOJOE has all of it: `tests/Scenario/`.
+2. **The process**: `name.bpmn`, drawn in any BPMN 2.0 tool or written by hand (php-bpmn's usage page has the skeleton). Lanes are the people, `userTask`s what they do, an exclusive gateway with a `default` flow each choice. Ids matter: the fixtures name lanes, tasks and flows by them. Only what concerns the test needs drawing.
+3. **The fixtures**: `name.yaml` beside it, `imports: [actors.yaml]`, then `lanes` (every lane with a human task), `data`, and one `tasks` entry per human task: its `route` and `params`, the `expect` exceptions to "lane ok, everyone else denied", and how it is done.
+4. **Run it**, read the report: every line is an access that differs from the rule, or the task that could not be done, with the requests that led there. Decide each time whether the application or the rule is wrong; never loosen an expectation only to make it pass.
+5. **Code only when the file cannot say it**: a value only the database knows (an id the pages never show), a mail to read. Write it as a method of `ScenariosTest` and call it with `do: { php: method }`.
+
+To find a form's field names and buttons, open the page as the actor in a throwaway test (`$context->as('member')->open(…)`, then the crawler) and delete it after.
+
+## Not to confuse with
+
+symfony-bpmn's `BpmnScenarioService::play()` runs a process **inside** the application, on its runner, to test the process. These scenarios test **the application** through its pages, by HTTP, against a process: the application does not need symfony-bpmn, nor to run the process at all.
