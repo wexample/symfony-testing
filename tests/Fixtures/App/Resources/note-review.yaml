@@ -1,0 +1,23 @@
+imports: [actors.yaml]
+
+lanes:
+  writer: alice
+  reviewer: bob
+
+tasks:
+  write:
+    route: note_new
+    # Any member may write a note, the administrator too.
+    expect: { carol: ok, bob: ok }
+    do: { submit: { button: Write, fill: { title: A scenario note }, capture: note } }
+  review:
+    route: note_review
+    params: { id: '@note.id' }
+    do: { submit: { button: Approve } }
+    when:
+      flow_rejected: { submit: { button: Reject } }
+  read_verdict:
+    route: note_show
+    params: { id: '@note.id' }
+    # The reviewer reads every note; another member is not shown it.
+    expect: { bob: ok, carol: not_found, visitor: login }

@@ -1,0 +1,7 @@
+# Who takes part, shared by the fixtures files of the application.
+login_route: login
+actors:
+  visitor: ~
+  alice: { user: alice }
+  carol: { user: carol }
+  bob: { user: bob }

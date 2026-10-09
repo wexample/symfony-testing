@@ -1,0 +1,41 @@
+framework:
+    session:
+        storage_factory_id: session.storage.factory.mock_file
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # The refusals a scenario provokes on purpose are not news.
+    logger:
+        class: Psr\Log\NullLogger
+
+    Wexample\SymfonyTesting\Tests\Fixtures\App\Controller\:
+        resource: '../Controller'
+        tags: ['controller.service_arguments']
+
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\InMemoryUser: plaintext
+
+    providers:
+        memory:
+            memory:
+                users:
+                    alice: { password: alice, roles: [ROLE_USER] }
+                    carol: { password: carol, roles: [ROLE_USER] }
+                    bob: { password: bob, roles: [ROLE_ADMIN] }
+
+    firewalls:
+        main:
+            lazy: true
+            provider: memory
+            form_login:
+                login_path: login
+                check_path: login
+
+    access_control:
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/notes, roles: ROLE_USER }

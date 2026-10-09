@@ -1,0 +1,10 @@
+imports: [actors.yaml]
+
+data:
+  alice_note: { factory: note, with: { title: Alice's note, author: '@actor.alice' } }
+
+access:
+  home: { expect: { visitor: ok, alice: ok, bob: ok } }
+  note_new: { expect: { visitor: login, alice: ok, bob: ok } }
+  note_show: { params: { id: '@alice_note.id' }, expect: { visitor: login, alice: ok, carol: not_found, bob: ok } }
+  note_review: { params: { id: '@alice_note.id' }, expect: { visitor: login, alice: forbidden, carol: denied, bob: ok } }
