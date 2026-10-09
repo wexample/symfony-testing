@@ -1,6 +1,7 @@
 # Extract testing primitives from network (multi-actor sessions, access matrix, cleanup)
 
 Opened: 2026-09-24
+Closed: 2026-10-09
 Updated: 2026-10-09
 Author: agent:archeology
 
@@ -100,4 +101,8 @@ Reste de cette todo : étapes 1–3, 5–7, 9–10, l'exploration de tous les li
 Intention du propriétaire : des tests d'intégration robustes qui prennent des rôles, passent sur les pages et vérifient qu'elles rendent du HTML sans erreur grave, sans clé de traduction perdue, et que l'API répond du JSON ; l'`explore()` de network (visiter tous les liens d'un menu d'un coup) en était le cœur. Fait : section `explore` des fixtures (`ExplorationDefinition`, `ScenarioContext::explore()`, `assertExploration()`, jouée par `AbstractScenarioDirectoryTestCase`). Premier usage : MOJOE design system `tests/Scenario/explore.yaml`, 118 à 132 pages par acteur ; a trouvé des traductions manquantes (corrigées dans notification-ds et la page de doc de symfony-api, via `trans_exists()` ajouté à symfony-translations) et `/api/user-tokens` en 500 quand la classe de jeton n'est pas configurée.
 
 Pas fait : vérifier que les réponses d'API respectent la norme des entités (à proposer côté symfony-api).
+
+## Clos le 2026-10-09 (tri avec le propriétaire : comprendre l'intention, ne pas sur-migrer)
+
+L'intention — des tests d'intégration complets qui prennent des rôles et vérifient pages et API — est servie par le moteur de scénarios (BPMN, `access`, `explore`). Retirés comme remplacés : `ScenarioTestCaseTrait`, `AbstractTestStep`, `SessionTestCaseTrait`, `LoggedUserTestCaseTrait`, `LoggedUserApplicationTestCaseTrait`, `ExplorationTestCaseTrait`, les traits `Role/{Admin,Anonymous,User}TestCaseTrait` (doublons). Gardés : `AbstractRoleControllerTestCase` et `Tests/Traits/RoleAnonymousTestCaseTrait`, dont symfony-api se sert. Abandonnés : `TestUserProviderInterface` (couvert par `TestActorProviderInterface`), `goBack` / `reload`. Reste hors de cette todo : vérifier la norme des entités dans les réponses d'API (symfony-api).
 
