@@ -304,10 +304,19 @@ final class ScenarioContext
         $contentType = (string) $response->headers->get('Content-Type');
 
         if (str_contains($contentType, 'json')) {
-            json_decode((string) $response->getContent());
+            $decoded = json_decode((string) $response->getContent(), true);
 
             if (JSON_ERROR_NONE !== json_last_error()) {
                 $this->accessFailures[] = $where . ': says JSON but is not (' . json_last_error_msg() . ')';
+
+                return;
+            }
+
+            // An endpoint of symfony-api, when it is installed: held to its norm.
+            if (str_starts_with($url, '/api/') && class_exists(self::API_NORM)) {
+                foreach ((self::API_NORM)::problems($decoded) as $problem) {
+                    $this->accessFailures[] = $where . ': ' . $problem;
+                }
             }
 
             return;
@@ -327,6 +336,8 @@ final class ScenarioContext
             }
         }
     }
+
+    private const string API_NORM = 'Wexample\\SymfonyApi\\Helper\\ApiResponseNormHelper';
 
     /**
      * A key the translator handed back as is: `@page::title`,
