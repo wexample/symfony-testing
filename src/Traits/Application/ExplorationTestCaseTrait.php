@@ -185,7 +185,7 @@ trait ExplorationTestCaseTrait
 
     protected function exploreResolveMap(
         array &$map,
-        array &$output = null
+        ?array &$output = null
     ): array {
         if (is_null($output)) {
             $output = $map;

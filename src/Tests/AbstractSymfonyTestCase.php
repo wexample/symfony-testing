@@ -10,6 +10,13 @@ use Wexample\SymfonyHelpers\Helper\RequestHelper;
 
 abstract class AbstractSymfonyTestCase extends AbstractWebTestCase
 {
+    /**
+     * Keep every url a test generates in `assets/json/test-requests-log.json`,
+     * and fail when one changes without a `RedirectMatch 301` in
+     * `public/.htaccess`: a guard for public urls, switched on per test case.
+     */
+    protected static bool $urlSurveillance = false;
+
     private ?array $requestsLog = null;
     private ?array $htaccessRules = null;
 
@@ -49,6 +56,10 @@ abstract class AbstractSymfonyTestCase extends AbstractWebTestCase
                     ? UrlGeneratorInterface::ABSOLUTE_URL
                     : UrlGeneratorInterface::ABSOLUTE_PATH
         ).RequestHelper::buildQueryStringPartIfNotEmpty($parameters);
+
+        if (! static::$urlSurveillance) {
+            return $url;
+        }
 
         $requestLogPath = $this->getProjectDir().'assets/json/test-requests-log.json';
         if (! $this->requestsLog) {
