@@ -1,8 +1,10 @@
 # symfony_testing
 
-Version: 6.0.0
+Version: 7.0.0
 
 `wexample/symfony-testing` is a PHPUnit support library for Symfony applications: it ships abstract test cases — `AbstractWebTestCase`, `AbstractSymfonyTestCase`, `AbstractApplicationTestCase`, `AbstractRoleControllerTestCase` — and a set of traits under src/Traits that a project mixes into its own test classes. The traits cover driving an application through the kernel browser (`goToRoute()`, `assertStatusCodeOk()`, `explore()` to crawl every link of a route map role by role), logging users in and out by role, Doctrine entities, console commands, forms, Twig rendering, and syntax tests that walk a project's `src/` to check controllers and their templates follow the expected naming. It targets Symfony projects built on the Wexample suite, on which it depends through `wexample/symfony-helpers` and `wexample/symfony-template`.
+
+Scenario tests take the parts of several people at once — an access matrix, or a BPMN process played lane by lane — from a fixtures file beside the test: see the scenarios page.
 
 ## Table of Contents
 
@@ -16,11 +18,11 @@ Version: 6.0.0
 
 ## Architecture
 
-The package ships no services and no configuration. `WexampleSymfonyTestingBundle` is an empty `extends AbstractBundle`, and everything else is consumed by inheritance (`extends AbstractSymfonyTestCase`) or by trait composition (`use ExplorationTestCaseTrait`). There is nothing to wire: a host project's test class picks a base class and mixes in the traits it needs.
+The package ships no services and no configuration. `WexampleSymfonyTestingBundle` is an empty `extends AbstractBundle`, and everything else is consumed by inheritance (`extends AbstractSymfonyTestCase`) or by trait composition (`use ControllerTestCaseTrait`). There is nothing to wire: a host project's test class picks a base class and mixes in the traits it needs. The scenario engine — src/Class/Scenario, driven by `AbstractScenarioTestCase` and `AbstractScenarioDirectoryTestCase` — is plain classes too; its usage is the scenarios page.
 
-### Three directories
+### Directories
 
-src/Tests holds the abstract test cases and the kernels — the classes a project extends. src/Traits holds the behaviour, split by concern, each trait pulling in its own prerequisites through `use`. src/Helper holds one stateless class, `TestControllerHelper`, which maps controller class names to test class names and back.
+src/Tests holds the abstract test cases and the kernels — the classes a project extends. src/Class/Scenario, src/Enum and src/Interface hold the scenario engine. src/Traits holds the behaviour, split by concern, each trait pulling in its own prerequisites through `use`. src/Helper holds one stateless class, `TestControllerHelper`, which maps controller class names to test class names and back.
 
 ### The base class chain
 
@@ -31,13 +33,13 @@ abstract public function url($route, array $args = []): string;
 abstract public function getStorageDir(string $name = null): string;
 ```
 
-`AbstractSymfonyTestCase` implements them. Its `url()` does more than generate a route: it re-generates the route with dummied arguments, keys the result by `md5(json_encode($logEntry))` into `assets/json/test-requests-log.json`, and when a previously logged URL has changed it looks for a matching `RedirectMatch 301 ^$urlFrom$ $urlTo` line in the host's `public/.htaccess`, failing the test if none exists. Every navigation helper in the package routes through this method, so every route a test visits ends up under that surveillance.
+`AbstractSymfonyTestCase` implements them. With `protected static bool $urlSurveillance = true` on a test case, its `url()` does more than generate a route: it re-generates the route with dummied arguments, keys the result by `md5(json_encode($logEntry))` into `assets/json/test-requests-log.json`, and when a previously logged URL has changed it looks for a matching `RedirectMatch 301 ^$urlFrom$ $urlTo` line in the host's `public/.htaccess`, failing the test if none exists. Every navigation helper in the package routes through this method, so a test case that switches it on has every route it visits under that surveillance. It is off by default.
 
 Three classes sit on top. `AbstractApplicationTestCase` adds only `use ApplicationTestCaseTrait`. `AbstractRoleControllerTestCase` adds `RoleTestCaseTrait` and `ControllerTestCaseTrait`, calls `$this->createGlobalClient()` in `setUp()`, and resolves its controller through `TestControllerHelper::buildControllerClassPath(static::class)`. `AbstractSymfonyKernelTestCase` only snapshots the global error and exception handlers in `setUp()` and restores them in `tearDown()`.
 
 ### Trait layering
 
-Traits declare their dependencies by `use`-ing each other, so a test class names one trait and gets the stack. `ControllerTestCaseTrait` → `HtmlDocumentTestCaseTrait` → `ApplicationTestCaseTrait`. `ExplorationTestCaseTrait` and `ScenarioTestCaseTrait` both pull `LoggedUserApplicationTestCaseTrait`, which pulls `LoggedUserTestCaseTrait` and `SessionTestCaseTrait`. `ControllerSyntaxTestCaseTrait` pulls `SplFileTestCaseTrait` and `ClassTestCaseTrait`. `LoggingTestCaseTrait` pulls `ConsoleLoggerTrait` from `symfony-helpers` — that is where `logTitle()`, `logIndentUp()` and `formatLogMessage()` come from.
+Traits declare their dependencies by `use`-ing each other, so a test class names one trait and gets the stack. `ControllerTestCaseTrait` → `HtmlDocumentTestCaseTrait` → `ApplicationTestCaseTrait`. `ControllerSyntaxTestCaseTrait` pulls `SplFileTestCaseTrait` and `ClassTestCaseTrait`. `LoggingTestCaseTrait` pulls `ConsoleLoggerTrait` from `symfony-helpers` — that is where `logTitle()`, `logIndentUp()` and `formatLogMessage()` come from.
 
 `ApplicationTestCaseTrait` owns the browser: `protected ?KernelBrowser $client`, created by `createGlobalClient()` which calls `static::ensureKernelShutdown()` then `static::createClient()` and resets `$this->hasRequested`.
 
@@ -59,13 +61,13 @@ Traits declare their dependencies by `use`-ing each other, so a test class names
 
 ### What the package assumes of its host
 
-The traits are written against a specific application shape and will not compile in isolation. `LoggedUserTestCaseTrait` and `TextManipulationTestCaseTrait` type-hint `App\Entity\User`; the `Form` traits type-hint `App\Entity\SearchResult`; `TestKernel` imports `App\Kernel`; `AbstractTestStep` still imports `App\Wex\BaseBundle\Tests\SymfonyTestCase`, a namespace no longer present in the suite. Several called methods are supplied by neither the package nor Symfony — `createAndSaveUserIfNotExists()`, `assertRedirectionIsToLoginPage()`, `createApplication()`, `apiRequestsEntityCollectionMembers()`, `formFind()`, `$this->usersMap` — and must exist on the concrete test class. Runtime paths are hardcoded too: `./var/cache/testStepsCache.json` for scenario step caching, `../tmp/php.env.ini` read for `SITE_ENV`, `fos_user_security_login` / `fos_user_security_logout` as login routes, and the container parameter `api_test_error_log_length` for the truncation length of logged response bodies.
+Everything under `src/` loads without the host application (`tests/Integration/AutoloadTest.php` proves it). What is left of the host's shape is convention, not code: the syntax traits (`ControllerSyntaxTestCaseTrait`, `SplFileTestCaseTrait`) and `AbstractRoleControllerTestCase` name the host's own `App\…` namespace as the one they walk, and `TestKernel` aliases `App\Kernel` to itself so services typed on it resolve. `AbstractEntityController`, referenced by the syntax traits, has no class of that name in the suite.
 
-Two identifiers resolve to nothing: `AbstractEntityController`, referenced in `ControllerSyntaxTestCaseTrait` and `SplFileTestCaseTrait`, has no `use` statement and no class of that name in the trait namespace.
+network's multi-user session layer (`SessionTestCaseTrait`, `LoggedUserTestCaseTrait`, the step-based `ScenarioTestCaseTrait` and `AbstractTestStep`) and its `explore()` route maps (`ExplorationTestCaseTrait`) were removed on 2026-10-09: the scenario engine replaces them (`ActorSessionPool`, BPMN scenarios, the `access` and `explore` sections).
 
 ### The package's own tests
 
-tests holds two files, `Syntax/ControllersTest.php` and `Logs/TemplatingTest.php`, both extending the package's own base classes. composer.json maps `Wexample\SymfonyTesting\` to `src/` only and declares no `autoload-dev`, so these files are not covered by the autoloader as it stands.
+tests runs on a fixture application (`tests/Fixtures/App`: a memory user provider, notes, a review process, pages to explore) through `phpunit.xml.dist`; `autoload-dev` maps `tests/Fixtures` and `tests/Integration`.
 
 ## Integration in the Suite
 
@@ -82,8 +84,14 @@ Visit the [Wexample Suite documentation](https://docs.wexample.com) for the comp
 - php: >=8.5
 - symfony/security-bundle: ^7.4 || ^8.0
 - wexample/php-date: >=2.1.0
-- wexample/symfony-helpers: >=15.0.0
+- wexample/symfony-helpers: >=16.0.0
 - wexample/symfony-template: >=2.0.5
+- symfony/browser-kit: ^7.4 || ^8.0
+- symfony/css-selector: ^7.4 || ^8.0
+- symfony/dom-crawler: ^7.4 || ^8.0
+- symfony/property-access: ^7.4 || ^8.0
+- symfony/yaml: ^7.4 || ^8.0
+- wexample/php-bpmn: >=2.0.0
 
 ## Versioning & Compatibility Policy
 

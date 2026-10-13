@@ -177,6 +177,7 @@ final class BpmnScenario
                 if (AccessExpectation::OK !== $context->met($response)) {
                     throw new RuntimeException(sprintf('opening %s answered %d.', $binding->route, $response->getStatusCode()));
                 }
+
                 break;
 
             case TaskBinding::DO_SUBMIT:
@@ -190,6 +191,7 @@ final class BpmnScenario
                 if (isset($options['capture'])) {
                     $context->capture($options['capture']);
                 }
+
                 break;
 
             case TaskBinding::DO_PHP:
@@ -198,6 +200,7 @@ final class BpmnScenario
                     throw new RuntimeException(sprintf('%s has no method %s.', $test::class, $method));
                 }
                 $test->$method($context, $step, $path);
+
                 break;
         }
     }
