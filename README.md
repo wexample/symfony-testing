@@ -1,6 +1,6 @@
 # symfony_testing
 
-Version: 7.0.2
+Version: 7.0.3
 
 `wexample/symfony-testing` is a PHPUnit support library for Symfony applications: it ships abstract test cases — `AbstractWebTestCase`, `AbstractSymfonyTestCase`, `AbstractApplicationTestCase`, `AbstractRoleControllerTestCase` — and a set of traits under src/Traits that a project mixes into its own test classes. The traits cover driving an application through the kernel browser (`goToRoute()`, `assertStatusCodeOk()`, `explore()` to crawl every link of a route map role by role), logging users in and out by role, Doctrine entities, console commands, forms, Twig rendering, and syntax tests that walk a project's `src/` to check controllers and their templates follow the expected naming. It targets Symfony projects built on the Wexample suite, on which it depends through `wexample/symfony-helpers` and `wexample/symfony-template`.
 
@@ -82,7 +82,7 @@ The suite includes packages for configuration management, file handling, prompts
 - php: >=8.5
 - symfony/security-bundle: ^7.4 || ^8.0
 - wexample/php-date: >=2.1.0
-- wexample/symfony-helpers: >=17.0.0
+- wexample/symfony-helpers: >=18.0.0
 - wexample/symfony-template: >=2.1.0
 - symfony/browser-kit: ^7.4 || ^8.0
 - symfony/css-selector: ^7.4 || ^8.0
