@@ -32,11 +32,11 @@
     "symfony/dom-crawler": "^7.4 || ^8.0",
     "symfony/property-access": "^7.4 || ^8.0",
     "symfony/yaml": "^7.4 || ^8.0",
-    "wexample/php-bpmn": ">=2.0.0"
+    "wexample/php-bpmn": ">=2.0.0",
+    "symfony/twig-bundle": "^7.4 || ^8.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^11.5 || ^12 || ^13",
-    "symfony/twig-bundle": "^7.4 || ^8.0",
     "doctrine/doctrine-bundle": "^2.13 || ^3.0",
     "doctrine/orm": "^3.0"
   },
