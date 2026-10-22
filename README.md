@@ -1,125 +1,17 @@
 # symfony_testing
 
-Version: 7.0.4
+Version: 7.0.5
 
-`wexample/symfony-testing` is a PHPUnit support library for Symfony applications: it ships abstract test cases — `AbstractWebTestCase`, `AbstractSymfonyTestCase`, `AbstractApplicationTestCase`, `AbstractRoleControllerTestCase` — and a set of traits under src/Traits that a project mixes into its own test classes. The traits cover driving an application through the kernel browser (`goToRoute()`, `assertStatusCodeOk()`, `explore()` to crawl every link of a route map role by role), logging users in and out by role, Doctrine entities, console commands, forms, Twig rendering, and syntax tests that walk a project's `src/` to check controllers and their templates follow the expected naming. It targets Symfony projects built on the Wexample suite, on which it depends through `wexample/symfony-helpers` and `wexample/symfony-template`.
-
-Scenario tests take the parts of several people at once — an access matrix, or a BPMN process played lane by lane — from a fixtures file beside the test: see the scenarios page.
+Testing helpers for Symfony / PhpUnit
 
 ## Table of Contents
 
-- [Architecture](#architecture)
-- [Integration in the Suite](#integration-in-the-suite)
-- [Dependencies](#dependencies)
-- [Versioning & Compatibility Policy](#versioning--compatibility-policy)
-- [License](#license)
-- [About us](#about-us)
-- [Migration Notes](#migration-notes)
+- [Introduction](#introduction)
 
-## Architecture
+# wexample/symfony-testing
 
-The package ships no services and no configuration. `WexampleSymfonyTestingBundle` is an empty `extends AbstractBundle`, and everything else is consumed by inheritance (`extends AbstractSymfonyTestCase`) or by trait composition (`use ControllerTestCaseTrait`). There is nothing to wire: a host project's test class picks a base class and mixes in the traits it needs. The scenario engine — src/Class/Scenario, driven by `AbstractScenarioTestCase` and `AbstractScenarioDirectoryTestCase` — is plain classes too; its usage is the scenarios page.
+Version: 1.0.80
 
-### Directories
+Testing helpers for Symfony / PhpUnit
 
-src/Tests holds the abstract test cases and the kernels — the classes a project extends. src/Class/Scenario, src/Enum and src/Interface hold the scenario engine. src/Traits holds the behaviour, split by concern, each trait pulling in its own prerequisites through `use`. src/Helper holds one stateless class, `TestControllerHelper`, which maps controller class names to test class names and back.
-
-### The base class chain
-
-`AbstractWebTestCase` extends Symfony's `WebTestCase`, mixes in `LoggingTestCaseTrait`, carries `protected bool $hasRequested = false;` and declares two abstract methods the rest of the package relies on:
-
-```php
-abstract public function url($route, array $args = []): string;
-abstract public function getStorageDir(string $name = null): string;
-```
-
-`AbstractSymfonyTestCase` implements them. With `protected static bool $urlSurveillance = true` on a test case, its `url()` does more than generate a route: it re-generates the route with dummied arguments, keys the result by `md5(json_encode($logEntry))` into `assets/json/test-requests-log.json`, and when a previously logged URL has changed it looks for a matching `RedirectMatch 301 ^$urlFrom$ $urlTo` line in the host's `public/.htaccess`, failing the test if none exists. Every navigation helper in the package routes through this method, so a test case that switches it on has every route it visits under that surveillance. It is off by default.
-
-Three classes sit on top. `AbstractApplicationTestCase` adds only `use ApplicationTestCaseTrait`. `AbstractRoleControllerTestCase` adds `RoleTestCaseTrait` and `ControllerTestCaseTrait`, calls `$this->createGlobalClient()` in `setUp()`, and resolves its controller through `TestControllerHelper::buildControllerClassPath(static::class)`. `AbstractSymfonyKernelTestCase` only snapshots the global error and exception handlers in `setUp()` and restores them in `tearDown()`.
-
-### Trait layering
-
-Traits declare their dependencies by `use`-ing each other, so a test class names one trait and gets the stack. `ControllerTestCaseTrait` → `HtmlDocumentTestCaseTrait` → `ApplicationTestCaseTrait`. `ControllerSyntaxTestCaseTrait` pulls `SplFileTestCaseTrait` and `ClassTestCaseTrait`. `LoggingTestCaseTrait` pulls `ConsoleLoggerTrait` from `symfony-helpers` — that is where `logTitle()`, `logIndentUp()` and `formatLogMessage()` come from.
-
-`ApplicationTestCaseTrait` owns the browser: `protected ?KernelBrowser $client`, created by `createGlobalClient()` which calls `static::ensureKernelShutdown()` then `static::createClient()` and resets `$this->hasRequested`.
-
-### Path of a navigation call
-
-`goToControllerRouteAndCheckHtml('view')` in `ControllerTestCaseTrait` resolves the route name via `static::getControllerClass()::buildRouteName($routeName)`, then hands off to `goToRouteAndCheckHtml()` in `ApplicationTestCaseTrait`, which chains `goToRouteAndCheckStatusCode()` → `goToRoute()`. `goToRoute()` converts the route through `$this->url()` — the logging implementation above — and calls `go()`, which saves the current URI into `$this->pathPrevious` and calls `requestGet()`. That sets `$this->hasRequested = true` and issues `$this->client->request(Request::METHOD_GET, ...)`. Control returns up the chain to `assertStatusCodeEquals()`, which calls `logBodyExtract()` before failing (deliberately not `assertResponseStatusCodeSame()`, "as logged trace is far too long"). A `domain::key` left untranslated is not looked for in the page: the strict translator of `symfony-translations`, on in the test environment, throws while rendering it.
-
-### The kernels
-
-`TestKernel` is a self-contained `MicroKernelTrait` kernel for testing the package and its siblings without a host application: four bundles (Framework, Doctrine, Twig, `WexampleSymfonyHelpersBundle`), Doctrine on `pdo_sqlite` in memory, a hardcoded `security.role_hierarchy.roles`, no routes, and four `symfony-helpers` services registered `->setPublic(true)` so tests can pull them out of the container. It aliases `Kernel::class` to itself.
-
-`AbstractFixtureKernel` extends it for tests that need a small on-disk app: subclasses implement `getFixtureDir()` and optionally `getExtraBundles()`, `getConfigFiles()`, `getRoutesControllersDir()`. It overrides `getProjectDir()` to return the fixture directory and puts the cache under `<fixture>/var/cache/<env>`, falling back to the parent's temp directory if that cannot be created.
-
-### Naming conventions as executable rules
-
-`TestControllerHelper` encodes the suite's class layout. `buildClassBundleNamespace()` finds the root namespace — the bundle namespace if the class uses `BundleClassTrait`, `App` otherwise, an exception if neither. From there `buildTestControllerClassPath()` and `buildControllerClassPath()` translate between `<Root>\Controller\…\FooController` and `<Root>\Tests\Application\Role\<Role>\…\FooControllerTest` using `ClassHelper::getCousin()`, with the path fragments held as constants on `AbstractRoleControllerTestCase` (`APPLICATION_TEST_CLASS_PATH_REL = 'Tests\\'`, `APPLICATION_ROLE_TEST_CLASS_PATH_REL = 'Application\\Role\\'`).
-
-`ControllerSyntaxTestCaseTrait` enforces the same conventions by walking files: `forEachClassFileRecursive()` iterates `src/<subdir>` with a `RecursiveIteratorIterator`, `buildClassNameFromSpl()` turns each real path into an `App\…` class name, and the callback asserts the suffix, the position under `Controller\Entity\`, and the existence of the matching entity. `scanControllerPagesTemplates()` runs the mirror check from the templates side: every `.html.twig` under the pages directory must have a controller class and a camel-cased method of the same name.
-
-### What the package assumes of its host
-
-Everything under `src/` loads without the host application (`tests/Integration/AutoloadTest.php` proves it). What is left of the host's shape is convention, not code: the syntax traits (`ControllerSyntaxTestCaseTrait`, `SplFileTestCaseTrait`) and `AbstractRoleControllerTestCase` name the host's own `App\…` namespace as the one they walk, and `TestKernel` aliases `App\Kernel` to itself so services typed on it resolve. `AbstractEntityController`, referenced by the syntax traits, has no class of that name in the suite.
-
-network's multi-user session layer (`SessionTestCaseTrait`, `LoggedUserTestCaseTrait`, the step-based `ScenarioTestCaseTrait` and `AbstractTestStep`) and its `explore()` route maps (`ExplorationTestCaseTrait`) were removed on 2026-10-09: the scenario engine replaces them (`ActorSessionPool`, BPMN scenarios, the `access` and `explore` sections).
-
-### The package's own tests
-
-tests runs on a fixture application (`tests/Fixtures/App`: a memory user provider, notes, a review process, pages to explore) through `phpunit.xml.dist`; `autoload-dev` maps `tests/Fixtures` and `tests/Integration`.
-
-## Integration in the Suite
-
-This package is part of the Wexample Suite — a collection of high-quality, modular tools designed to work seamlessly together across multiple languages and environments.
-
-### Related Packages
-
-The suite includes packages for configuration management, file handling, prompts, and more. Each package can be used independently or as part of the integrated suite.
-
-## Dependencies
-
-- php: >=8.5
-- symfony/security-bundle: ^7.4 || ^8.0
-- wexample/php-date: >=2.1.0
-- wexample/symfony-helpers: >=18.0.0
-- wexample/symfony-template: >=2.1.0
-- symfony/browser-kit: ^7.4 || ^8.0
-- symfony/css-selector: ^7.4 || ^8.0
-- symfony/dom-crawler: ^7.4 || ^8.0
-- symfony/property-access: ^7.4 || ^8.0
-- symfony/yaml: ^7.4 || ^8.0
-- wexample/php-bpmn: >=2.0.0
-- symfony/twig-bundle: ^7.4 || ^8.0
-
-## Versioning & Compatibility Policy
-
-Wexample packages follow **Semantic Versioning** (SemVer):
-
-- **MAJOR**: Breaking changes
-- **MINOR**: New features, backward compatible
-- **PATCH**: Bug fixes, backward compatible
-
-We maintain backward compatibility within major versions and provide clear migration guides for breaking changes.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Free to use in both personal and commercial projects.
-
-## About us
-
-[Wexample](https://wexample.com) stands as a cornerstone of the digital ecosystem — a collective of seasoned engineers, researchers, and creators driven by a relentless pursuit of technological excellence. More than a media platform, it has grown into a vibrant community where innovation meets craftsmanship, and where every line of code reflects a commitment to clarity, durability, and shared intelligence.
-
-This packages suite embodies this spirit. Trusted by professionals and enthusiasts alike, it delivers a consistent, high-quality foundation for modern development — open, elegant, and battle-tested. Its reputation is built on years of collaboration, refinement, and rigorous attention to detail, making it a natural choice for those who demand both robustness and beauty in their tools.
-
-Wexample cultivates a culture of mastery. Each package, each contribution carries the mark of a community that values precision, ethics, and innovation — a community proud to shape the future of digital craftsmanship.
-
-Built and maintained by [Romain Weeger](https://weeger.io).
-
-## Migration Notes
-
-When upgrading between major versions, refer to the migration guides in the documentation.
-
-Breaking changes are clearly documented with upgrade paths and examples.
+## Table of Contents
