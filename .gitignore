@@ -57,3 +57,4 @@ coverage*.lcov
 /out/
 /coverage/
 /tests/Fixtures/App/var/
+/node_modules
