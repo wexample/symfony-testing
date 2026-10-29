@@ -1,6 +1,6 @@
 # symfony_testing
 
-Version: 7.0.6
+Version: 7.0.7
 
 Testing helpers for Symfony / PhpUnit
 
