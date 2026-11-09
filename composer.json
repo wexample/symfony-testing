@@ -40,6 +40,9 @@
     "doctrine/doctrine-bundle": "^2.15 || ^3.0",
     "doctrine/orm": "^3.0"
   },
+  "conflict": {
+    "doctrine/doctrine-bundle": "<2.15"
+  },
   "repositories": [
     {
       "type": "path",
